@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  basePath: "/hcd-wireframe", // your repo name
+  basePath: "/hcd-wireframe",
   images: {
     unoptimized: true,
   },
-  assetPrefix: "/hcd-wireframe/", // add trailing slash
+  assetPrefix: "/hcd-wireframe",
 };
 
 module.exports = nextConfig;
