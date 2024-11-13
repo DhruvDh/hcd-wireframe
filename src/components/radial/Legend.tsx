@@ -13,6 +13,9 @@ export const Legend: React.FC<LegendProps> = ({ activeTypes, onToggleType }) => 
   return (
     <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg">
       <h3 className="text-sm font-semibold mb-2">Relationship Types</h3>
+      <p className="text-xs text-gray-500 mb-3 italic">
+        Hover over relationships to see details
+      </p>
       <div className="space-y-2">
         {relationshipTypes.map(type => {
           const style = getRelationshipStyle(type);

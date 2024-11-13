@@ -19,18 +19,60 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
   const [activeFilters, setActiveFilters] = useState<NodeType[]>([]);
   const [showRadial, setShowRadial] = useState(false);
 
+  // Helper function to get all descendants of a node
+  const getAllDescendants = (node: TreeNode): TreeNode[] => {
+    const descendants: TreeNode[] = [];
+    if (node.children) {
+      node.children.forEach(child => {
+        descendants.push(child);
+        descendants.push(...getAllDescendants(child));
+      });
+    }
+    return descendants;
+  };
+
+  // Helper function to check if a node is already selected in any panel
+  const isNodeSelectedInAnyPanel = (nodeId: string): boolean => {
+    return Object.keys(selectedNodes).some(key => key.endsWith(`-${nodeId}`));
+  };
+
   const handleNodeSelect = (node: TreeNode, panel: 'left' | 'right') => {
-    const next = { ...selectedNodes };
     const key = `${panel}-${node.id}`;
     
-    if (next[key]) {
-      delete next[key];
-    } else {
-      next[key] = { ...node, panel };
-    }
-    
-    setSelectedNodes(next);
-    onSelectionChange?.(next);
+    setSelectedNodes(prev => {
+      const next = { ...prev };
+      const descendants = getAllDescendants(node);
+      
+      // Check if the node is currently selected
+      const isSelected = !!next[key];
+      
+      if (isSelected) {
+        // Deselect the node and all its descendants
+        delete next[key];
+        descendants.forEach(descendant => {
+          delete next[`${panel}-${descendant.id}`];
+        });
+      } else {
+        // Check if node or any descendants are selected in the other panel
+        const otherPanel = panel === 'left' ? 'right' : 'left';
+        const isNodeSelectedInOtherPanel = !!next[`${otherPanel}-${node.id}`];
+        const isAnyDescendantSelectedInOtherPanel = descendants.some(
+          d => !!next[`${otherPanel}-${d.id}`]
+        );
+
+        if (isNodeSelectedInOtherPanel || isAnyDescendantSelectedInOtherPanel) {
+          return prev; // Don't allow selection if already selected in other panel
+        }
+
+        // Select the node and all its descendants
+        next[key] = { ...node, panel };
+        descendants.forEach(descendant => {
+          next[`${panel}-${descendant.id}`] = { ...descendant, panel };
+        });
+      }
+      
+      return next;
+    });
   };
 
   const handleRemoveSelection = (nodeId: string, panel: 'left' | 'right') => {

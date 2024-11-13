@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
-import { TreeNode, NodeType } from '@/types/tree';
-import { relationships, RelationshipType } from '@/lib/mock-data';
-import { Legend } from './Legend';
+import React, { useEffect, useRef, useState } from "react";
+import * as d3 from "d3";
+import { TreeNode, NodeType } from "@/types/tree";
+import { relationships, RelationshipType } from "@/lib/mock-data";
+import { Legend } from "./Legend";
 import {
   calculateNodePositions,
+  getRelationshipStyle,
   PositionedNode,
-} from './utils';
-import { RelationshipPath } from './RelationshipPath';
-import { RelationshipTooltip } from './RelationshipTooltip';
-import { Relationship } from '@/types/relationships';
+} from "./utils";
+import { RelationshipPath } from "./RelationshipPath";
+import { RelationshipTooltip } from "./RelationshipTooltip";
+import { Relationship } from "@/types/relationships";
 
 interface RadialViewProps {
-  selectedNodes: Record<string, TreeNode & { panel: 'left' | 'right' }>;
+  selectedNodes: Record<string, TreeNode & { panel: "left" | "right" }>;
 }
 
 export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
@@ -20,11 +21,14 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [hoveredRelationship, setHoveredRelationship] = useState<string | null>(null);
+  const [hoveredRelationship, setHoveredRelationship] = useState<string | null>(
+    null
+  );
   const [activeTypes, setActiveTypes] = useState<RelationshipType[]>(
     Object.values(RelationshipType)
   );
-  const [selectedRelationship, setSelectedRelationship] = useState<Relationship | null>(null);
+  const [selectedRelationship, setSelectedRelationship] =
+    useState<Relationship | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   // Handle window resize
@@ -37,8 +41,8 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Initialize zoom behavior
@@ -46,9 +50,10 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 2])
-      .on('zoom', (event) => {
+      .on("zoom", (event) => {
         setTransform(event.transform);
       });
 
@@ -58,18 +63,30 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     const initialTransform = d3.zoomIdentity
       .translate(dimensions.width / 2, dimensions.height / 2)
       .scale(1);
-    
+
     svg.call(zoom.transform, initialTransform);
   }, [dimensions]);
 
   const nodes = Object.values(selectedNodes);
-  const positionedNodes = calculateNodePositions(nodes, dimensions.width, dimensions.height);
+  const positionedNodes = calculateNodePositions(
+    nodes,
+    dimensions.width,
+    dimensions.height
+  );
 
   // Filter relationships for selected nodes
-  const relevantRelationships = relationships.filter(rel => {
-    const sourceNode = selectedNodes[`left-${rel.source}`] || selectedNodes[`right-${rel.source}`];
-    const targetNode = selectedNodes[`left-${rel.target}`] || selectedNodes[`right-${rel.target}`];
-    return sourceNode && targetNode && activeTypes.includes(rel.type);
+  const relevantRelationships = relationships.filter((rel) => {
+    const sourceExists = nodes.some(
+      (node) =>
+        node.id === rel.source ||
+        node.id === rel.source.replace("left-", "").replace("right-", "")
+    );
+    const targetExists = nodes.some(
+      (node) =>
+        node.id === rel.target ||
+        node.id === rel.target.replace("left-", "").replace("right-", "")
+    );
+    return sourceExists && targetExists && activeTypes.includes(rel.type);
   });
 
   const handleNodeClick = (node: PositionedNode) => {
@@ -84,13 +101,14 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     const y = dimensions.height / 2 - node.y * scale;
 
     const transform = d3.zoomIdentity.translate(x, y).scale(scale);
-    
-    svg.transition()
-      .duration(750)
-      .call(zoom.transform, transform);
+
+    svg.transition().duration(750).call(zoom.transform, transform);
   };
 
-  const handleRelationshipHover = (relationshipId: string | null, event?: React.MouseEvent) => {
+  const handleRelationshipHover = (
+    relationshipId: string | null,
+    event?: React.MouseEvent
+  ) => {
     setHoveredRelationship(relationshipId);
     if (event) {
       setTooltipPosition({ x: event.clientX, y: event.clientY });
@@ -100,7 +118,7 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
   const handleRelationshipClick = (relationship: Relationship) => {
     setSelectedRelationship(
       selectedRelationship?.source === relationship.source &&
-      selectedRelationship?.target === relationship.target
+        selectedRelationship?.target === relationship.target
         ? null
         : relationship
     );
@@ -108,22 +126,44 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
 
   return (
     <div className="w-full h-full relative">
-      <svg
-        ref={svgRef}
-        width="100%"
-        height="100%"
-        className="bg-white"
-      >
-        <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
+      <svg ref={svgRef} width="100%" height="100%" className="bg-white">
+        {/* Define markers once at the SVG level */}
+        <defs>
+          {relevantRelationships.map((rel) => {
+            const style = getRelationshipStyle(rel.type);
+            const relationshipId = `${rel.source}-${rel.target}-${rel.type}`;
+
+            return (
+              rel.type === RelationshipType.PREREQUISITE && (
+                <marker
+                  key={relationshipId}
+                  id={`arrow-${relationshipId}`}
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill={style.color} />
+                </marker>
+              )
+            );
+          })}
+        </defs>
+
+        <g
+          transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}
+        >
           {/* Render relationships */}
-          {relevantRelationships.map(rel => {
-            const source = positionedNodes.find(n => n.id === rel.source);
-            const target = positionedNodes.find(n => n.id === rel.target);
+          {relevantRelationships.map((rel) => {
+            const source = positionedNodes.find((n) => n.id === rel.source);
+            const target = positionedNodes.find((n) => n.id === rel.target);
             if (!source || !target) return null;
 
             const relationshipId = `${rel.source}-${rel.target}-${rel.type}`;
-            const isHighlighted = hoveredNode 
-              ? (hoveredNode === rel.source || hoveredNode === rel.target)
+            const isHighlighted = hoveredNode
+              ? hoveredNode === rel.source || hoveredNode === rel.target
               : hoveredRelationship === relationshipId;
 
             return (
@@ -139,39 +179,49 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
             );
           })}
 
-          {/* Render nodes */}
-          {positionedNodes.map(node => (
-            <g
-              key={node.id}
-              transform={`translate(${node.x},${node.y})`}
-              onClick={() => handleNodeClick(node)}
-              onMouseEnter={() => setHoveredNode(node.id)}
-              onMouseLeave={() => setHoveredNode(null)}
-              style={{ cursor: 'pointer' }}
-            >
-              <circle
-                r={node.radius}
-                fill={getNodeColor(node.type)}
-                stroke="#374151"
-                strokeWidth={2}
-                opacity={hoveredNode ? (hoveredNode === node.id ? 1 : 0.5) : 1}
-              />
-              <text
-                textAnchor="middle"
-                dy="-0.5em"
-                className="text-sm font-medium fill-gray-900"
+          {/* Render nodes as rectangles */}
+          {positionedNodes.map((node) => {
+            // Calculate rectangle dimensions based on text
+            const width = node.radius * 2;
+            const height = node.radius * 1.5;
+            
+            return (
+              <g
+                key={node.id}
+                transform={`translate(${node.x},${node.y})`}
+                onClick={() => handleNodeClick(node)}
+                onMouseEnter={() => setHoveredNode(node.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+                style={{ cursor: "pointer" }}
               >
-                {node.name}
-              </text>
-              <text
-                textAnchor="middle"
-                dy="1.5em"
-                className="text-xs fill-gray-600"
-              >
-                {node.type}
-              </text>
-            </g>
-          ))}
+                <rect
+                  x={-width / 2}
+                  y={-height / 2}
+                  width={width}
+                  height={height}
+                  fill={getNodeColor(node.type)}
+                  stroke="#374151"
+                  strokeWidth={2}
+                  rx={4} // Rounded corners
+                  opacity={hoveredNode ? (hoveredNode === node.id ? 1 : 0.5) : 1}
+                />
+                <text
+                  textAnchor="middle"
+                  dy="-0.1em"
+                  className="text-sm font-medium fill-gray-900"
+                >
+                  {node.name}
+                </text>
+                <text
+                  textAnchor="middle"
+                  dy="1.2em"
+                  className="text-xs fill-gray-600"
+                >
+                  {node.type}
+                </text>
+              </g>
+            );
+          })}
         </g>
       </svg>
 
@@ -179,9 +229,9 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
       <Legend
         activeTypes={activeTypes}
         onToggleType={(type) => {
-          setActiveTypes(prev =>
+          setActiveTypes((prev) =>
             prev.includes(type)
-              ? prev.filter(t => t !== type)
+              ? prev.filter((t) => t !== type)
               : [...prev, type]
           );
         }}
@@ -190,9 +240,11 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
       {/* Relationship tooltip */}
       {hoveredRelationship && (
         <RelationshipTooltip
-          relationship={relationships.find(r => 
-            `${r.source}-${r.target}-${r.type}` === hoveredRelationship
-          )!}
+          relationship={
+            relationships.find(
+              (r) => `${r.source}-${r.target}-${r.type}` === hoveredRelationship
+            )!
+          }
           position={tooltipPosition}
         />
       )}
@@ -215,7 +267,8 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
               )}
               {selectedRelationship.metadata?.strength && (
                 <span className="bg-gray-100 px-2 py-1 rounded">
-                  Strength: {(selectedRelationship.metadata.strength * 100).toFixed(0)}%
+                  Strength:{" "}
+                  {(selectedRelationship.metadata.strength * 100).toFixed(0)}%
                 </span>
               )}
             </div>
@@ -229,14 +282,14 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
 const getNodeColor = (type: NodeType): string => {
   switch (type) {
     case NodeType.COLLEGE:
-      return '#93c5fd'; // blue-300
+      return "#93c5fd"; // blue-300
     case NodeType.DEPARTMENT:
-      return '#86efac'; // green-300
+      return "#86efac"; // green-300
     case NodeType.PROGRAM:
-      return '#c4b5fd'; // purple-300
+      return "#c4b5fd"; // purple-300
     case NodeType.COURSE:
-      return '#fdba74'; // orange-300
+      return "#fdba74"; // orange-300
     default:
-      return '#e5e7eb'; // gray-200
+      return "#e5e7eb"; // gray-200
   }
-}; 
+};

@@ -1,10 +1,7 @@
 // src/lib/mock-data/index.ts
 
 import { College, Department, Program, Course, Faculty } from "@/types";
-import {
-  NodeType,
-  TreeNode,
-} from "@/types/tree";
+import { NodeType, TreeNode } from "@/types/tree";
 
 export const colleges: College[] = [
   {
@@ -72,6 +69,60 @@ export const courses: Course[] = [
     prerequisites: ["ECE-400"],
     facultyIds: ["fac-smith"],
   },
+  {
+    id: "course-distributed-systems",
+    code: "CS-DS501",
+    title: "Distributed Systems",
+    description: "Advanced concepts in distributed computing and systems.",
+    credits: 3,
+    prerequisites: ["CS-400"],
+    facultyIds: ["fac-martinez"]
+  },
+  {
+    id: "course-iot-fundamentals",
+    code: "CS-IOT401",
+    title: "IoT Fundamentals",
+    description: "Introduction to Internet of Things concepts and applications.",
+    credits: 3,
+    prerequisites: ["CS-300"],
+    facultyIds: ["fac-martinez", "fac-zhang"]
+  },
+  {
+    id: "course-vr-fundamentals",
+    code: "CS-VR401",
+    title: "Virtual Reality Fundamentals",
+    description: "Basics of VR development and applications.",
+    credits: 3,
+    prerequisites: ["CS-350"],
+    facultyIds: ["fac-thompson"]
+  },
+  {
+    id: "course-graphics",
+    code: "CS-GR401",
+    title: "Computer Graphics",
+    description: "Fundamentals of computer graphics and visualization.",
+    credits: 3,
+    prerequisites: ["CS-300", "MATH-301"],
+    facultyIds: ["fac-thompson"]
+  },
+  {
+    id: "course-quantum-computing",
+    code: "CS-QC501",
+    title: "Quantum Computing",
+    description: "Introduction to quantum computing concepts and algorithms.",
+    credits: 3,
+    prerequisites: ["CS-400", "MATH-401"],
+    facultyIds: ["fac-davis"]
+  },
+  {
+    id: "course-nlp",
+    code: "CS-NLP501",
+    title: "Natural Language Processing",
+    description: "Advanced NLP concepts and applications.",
+    credits: 3,
+    prerequisites: ["CS-ML501"],
+    facultyIds: ["fac-wilson"]
+  }
 ];
 
 export const faculty: Faculty[] = [
@@ -81,7 +132,7 @@ export const faculty: Faculty[] = [
     title: "Professor",
     researchAreas: ["Machine Learning", "Artificial Intelligence"],
     courseIds: ["course-cs-ml501", "course-ece-ml510"],
-    programIds: ["prog-ml", "prog-ai-ml"],
+    programIds: ["prog-bs-cs", "prog-ms-cs"],
   },
   {
     id: "fac-doe",
@@ -89,8 +140,40 @@ export const faculty: Faculty[] = [
     title: "Associate Professor",
     researchAreas: ["Deep Learning", "Computer Vision"],
     courseIds: ["course-cs-ml501"],
-    programIds: ["prog-ml"],
+    programIds: ["prog-bs-cs"],
   },
+  {
+    id: "fac-martinez",
+    name: "Dr. Elena Martinez",
+    title: "Associate Professor",
+    researchAreas: ["Edge Computing", "Internet of Things", "Distributed Systems"],
+    courseIds: ["course-distributed-systems", "course-iot-fundamentals"],
+    programIds: ["prog-bs-cs", "prog-ms-cs"]
+  },
+  {
+    id: "fac-thompson",
+    name: "Dr. James Thompson",
+    title: "Assistant Professor",
+    researchAreas: ["Virtual Reality", "Computer Graphics", "Game Development"],
+    courseIds: ["course-vr-fundamentals", "course-graphics"],
+    programIds: ["prog-bs-cs", "prog-ms-cs"]
+  },
+  {
+    id: "fac-davis",
+    name: "Dr. Robert Davis",
+    title: "Professor",
+    researchAreas: ["Quantum Computing", "Theoretical Computer Science", "Algorithms"],
+    courseIds: ["course-quantum-computing", "course-advanced-algorithms"],
+    programIds: ["prog-ms-cs", "prog-phd-cs"]
+  },
+  {
+    id: "fac-wilson",
+    name: "Dr. Emily Wilson",
+    title: "Associate Professor",
+    researchAreas: ["Natural Language Processing", "Machine Learning", "Computational Linguistics"],
+    courseIds: ["course-nlp", "course-ml-advanced"],
+    programIds: ["prog-ms-cs", "prog-phd-cs"]
+  }
 ];
 
 // Define research labs
@@ -163,6 +246,41 @@ export const researchLabs: ResearchLab[] = [
       "Scientific Visualization",
     ],
   },
+  {
+    id: "lab-robotics",
+    name: "Robotics and Autonomous Systems Lab",
+    description: "Research in robotics, automation, and intelligent systems",
+    facultyIds: ["fac-zhang", "fac-brown"],
+    researchAreas: ["Robotics", "Autonomous Systems", "Computer Vision"],
+  },
+  {
+    id: "lab-quantum",
+    name: "Quantum Computing and Information Lab",
+    description: "Research in quantum algorithms and quantum information processing",
+    facultyIds: ["fac-smith", "fac-williams", "fac-davis"],
+    researchAreas: ["Quantum Computing", "Quantum Algorithms", "Quantum Machine Learning"]
+  },
+  {
+    id: "lab-edge",
+    name: "Edge Computing and IoT Lab",
+    description: "Research in edge computing, IoT systems, and distributed intelligence",
+    facultyIds: ["fac-zhang", "fac-brown", "fac-martinez"],
+    researchAreas: ["Edge Computing", "IoT", "Distributed Systems", "Edge AI"]
+  },
+  {
+    id: "lab-xr",
+    name: "Extended Reality Research Lab",
+    description: "Research in virtual, augmented, and mixed reality technologies",
+    facultyIds: ["fac-chen", "fac-patel", "fac-thompson"],
+    researchAreas: ["Virtual Reality", "Augmented Reality", "Mixed Reality", "Human-Computer Interaction"]
+  },
+  {
+    id: "lab-nlp",
+    name: "Natural Language Processing Lab",
+    description: "Advanced research in NLP and computational linguistics",
+    facultyIds: ["fac-jones", "fac-wilson", "fac-garcia"],
+    researchAreas: ["Natural Language Processing", "Computational Linguistics", "Text Mining"]
+  }
 ];
 
 // Faculty Data with Rich Relationships
@@ -197,6 +315,16 @@ export const facultyMembers: FacultyMember[] = [
     researchAreas: ["HCI", "UX Research"],
     collaborators: ["fac-patel"],
   },
+  {
+    id: "fac-zhang",
+    name: "Dr. Wei Zhang",
+    title: "Assistant Professor",
+    labId: "lab-robotics",
+    currentCourses: ["course-robotics", "course-computer-vision"],
+    pastCourses: ["course-ai-intro"],
+    researchAreas: ["Robotics", "Computer Vision", "Deep Learning"],
+    collaborators: ["fac-smith", "fac-jones"],
+  },
 ];
 
 // Instead, declare the base data first without exporting
@@ -209,29 +337,32 @@ const baseHierarchicalData: TreeNode[] = [
       "The College of Computing and Informatics (CCI) offers comprehensive academic programs in computing and related fields.",
     children: [
       {
-        id: "faculty-section",
-        name: "Faculty Members",
-        type: NodeType.DEPARTMENT,
-        description: "College faculty and researchers",
-        children: faculty.map(f => ({
-          id: f.id,
-          name: f.name,
-          type: NodeType.FACULTY,
-          description: `${f.title} - Research areas: ${f.researchAreas.join(', ')}`,
-          metadata: {
-            researchAreas: f.researchAreas,
-            courseIds: f.courseIds,
-            programIds: f.programIds
-          }
-        }))
-      },
-      {
         id: "dept-cs",
         name: "Department of Computer Science",
         type: NodeType.DEPARTMENT,
         description:
           "Focuses on theoretical and applied computer science, from foundations to advanced computing.",
         children: [
+          // Add faculty to department - simplified filtering
+          ...faculty
+            .filter(
+              (f) =>
+                f.programIds.includes("prog-bs-cs") ||
+                f.programIds.includes("prog-ms-cs")
+            )
+            .map((f) => ({
+              id: f.id,
+              name: f.name,
+              type: NodeType.FACULTY,
+              description: `${f.title} - Research areas: ${f.researchAreas.join(
+                ", "
+              )}`,
+              metadata: {
+                researchAreas: f.researchAreas,
+                courseIds: f.courseIds,
+                programIds: f.programIds,
+              },
+            })),
           {
             id: "prog-bs-cs",
             name: "B.S. in Computer Science",
@@ -276,6 +407,40 @@ const baseHierarchicalData: TreeNode[] = [
                       lab: "lab-ai",
                     },
                   },
+                  {
+                    id: "course-computer-vision",
+                    name: "Computer Vision",
+                    type: NodeType.COURSE,
+                    code: "ITCS 4156",
+                    description:
+                      "Image processing and visual recognition systems.",
+                    metadata: {
+                      faculty: ["fac-jones"],
+                      prerequisites: ["course-ai-intro"],
+                      relatedCourses: [
+                        "course-robotics",
+                        "course-deep-learning",
+                      ],
+                      lab: "lab-ai",
+                    },
+                  },
+                  {
+                    id: "course-deep-learning",
+                    name: "Deep Learning",
+                    type: NodeType.COURSE,
+                    code: "ITCS 4158",
+                    description:
+                      "Neural networks and deep learning architectures.",
+                    metadata: {
+                      faculty: ["fac-smith", "fac-jones"],
+                      prerequisites: ["course-ai-intro"],
+                      relatedCourses: [
+                        "course-computer-vision",
+                        "course-ml-advanced",
+                      ],
+                      lab: "lab-ai",
+                    },
+                  },
                 ],
               },
               {
@@ -309,6 +474,33 @@ const baseHierarchicalData: TreeNode[] = [
                       faculty: ["fac-chen", "fac-patel"],
                       prerequisites: ["course-hci"],
                       relatedCourses: ["course-web-dev"],
+                      lab: "lab-hci",
+                    },
+                  },
+                  {
+                    id: "course-mobile-dev",
+                    name: "Mobile Interface Design",
+                    type: NodeType.COURSE,
+                    code: "ITCS 4185",
+                    description: "Design and development of mobile interfaces.",
+                    metadata: {
+                      faculty: ["fac-patel"],
+                      prerequisites: ["course-ui-design"],
+                      relatedCourses: ["course-web-dev"],
+                      lab: "lab-hci",
+                    },
+                  },
+                  {
+                    id: "course-accessibility",
+                    name: "Accessible Computing",
+                    type: NodeType.COURSE,
+                    code: "ITCS 4188",
+                    description:
+                      "Design for accessibility and inclusive computing.",
+                    metadata: {
+                      faculty: ["fac-chen"],
+                      prerequisites: ["course-hci"],
+                      relatedCourses: ["course-ui-design", "course-mobile-dev"],
                       lab: "lab-hci",
                     },
                   },
@@ -361,6 +553,22 @@ const baseHierarchicalData: TreeNode[] = [
         description:
           "Focuses on software engineering and information technology.",
         children: [
+          // Add faculty to department - simplified filtering
+          ...faculty
+            .filter((f) => f.programIds.includes("prog-bs-se"))
+            .map((f) => ({
+              id: f.id,
+              name: f.name,
+              type: NodeType.FACULTY,
+              description: `${f.title} - Research areas: ${f.researchAreas.join(
+                ", "
+              )}`,
+              metadata: {
+                researchAreas: f.researchAreas,
+                courseIds: f.courseIds,
+                programIds: f.programIds,
+              },
+            })),
           {
             id: "prog-bs-se",
             name: "B.S. in Software Engineering",
@@ -399,7 +607,34 @@ const baseHierarchicalData: TreeNode[] = [
             description:
               "Graduate program in bioinformatics and computational biology.",
             children: [
-              /* ... courses ... */
+              {
+                id: "course-bio-algorithms",
+                name: "Algorithms in Bioinformatics",
+                type: NodeType.COURSE,
+                code: "BINF 6201",
+                description:
+                  "Advanced algorithms for biological sequence analysis and genomics.",
+                metadata: {
+                  faculty: ["fac-chen"],
+                  prerequisites: ["course-algorithms"],
+                  relatedCourses: ["course-bio-stats"],
+                  lab: "lab-biocomputing",
+                },
+              },
+              {
+                id: "course-bio-stats",
+                name: "Statistical Methods in Bioinformatics",
+                type: NodeType.COURSE,
+                code: "BINF 6211",
+                description:
+                  "Statistical approaches for analyzing genomic data.",
+                metadata: {
+                  faculty: ["fac-zhang"],
+                  prerequisites: ["course-bio-algorithms"],
+                  relatedCourses: ["course-ml-bioinfo"],
+                  lab: "lab-biocomputing",
+                },
+              },
             ],
           },
           {
@@ -410,7 +645,34 @@ const baseHierarchicalData: TreeNode[] = [
             description:
               "Doctoral program focusing on computational biology research.",
             children: [
-              /* ... courses ... */
+              {
+                id: "course-ml-bioinfo",
+                name: "Machine Learning in Bioinformatics",
+                type: NodeType.COURSE,
+                code: "BINF 8201",
+                description:
+                  "Advanced ML techniques for biological data analysis.",
+                metadata: {
+                  faculty: ["fac-chen", "fac-zhang"],
+                  prerequisites: ["course-bio-stats"],
+                  relatedCourses: ["course-bio-algorithms"],
+                  lab: "lab-biocomputing",
+                },
+              },
+              {
+                id: "course-genomics",
+                name: "Computational Genomics",
+                type: NodeType.COURSE,
+                code: "BINF 8210",
+                description:
+                  "Advanced computational methods for genomic research.",
+                metadata: {
+                  faculty: ["fac-chen"],
+                  prerequisites: ["course-ml-bioinfo"],
+                  relatedCourses: ["course-bio-stats"],
+                  lab: "lab-biocomputing",
+                },
+              },
             ],
           },
         ],
@@ -428,7 +690,33 @@ const baseHierarchicalData: TreeNode[] = [
             code: "MSDS",
             description: "Advanced degree in data science and analytics.",
             children: [
-              /* ... courses ... */
+              {
+                id: "course-adv-analytics",
+                name: "Advanced Analytics",
+                type: NodeType.COURSE,
+                code: "DSBA 6201",
+                description:
+                  "Advanced statistical and machine learning methods.",
+                metadata: {
+                  faculty: ["fac-wilson"],
+                  prerequisites: ["course-stats-foundations"],
+                  relatedCourses: ["course-big-data"],
+                  lab: "lab-analytics",
+                },
+              },
+              {
+                id: "course-big-data",
+                name: "Big Data Analytics",
+                type: NodeType.COURSE,
+                code: "DSBA 6210",
+                description: "Processing and analyzing large-scale datasets.",
+                metadata: {
+                  faculty: ["fac-wilson", "fac-garcia"],
+                  prerequisites: ["course-adv-analytics"],
+                  relatedCourses: ["course-data-viz"],
+                  lab: "lab-analytics",
+                },
+              },
             ],
           },
           {
@@ -438,7 +726,34 @@ const baseHierarchicalData: TreeNode[] = [
             code: "BSDS",
             description: "Undergraduate program in data science.",
             children: [
-              /* ... courses ... */
+              {
+                id: "course-stats-foundations",
+                name: "Foundations of Statistics",
+                type: NodeType.COURSE,
+                code: "DSBA 2201",
+                description:
+                  "Fundamental statistical concepts for data science.",
+                metadata: {
+                  faculty: ["fac-garcia"],
+                  prerequisites: [],
+                  relatedCourses: ["course-data-viz"],
+                  lab: "lab-analytics",
+                },
+              },
+              {
+                id: "course-data-viz",
+                name: "Data Visualization",
+                type: NodeType.COURSE,
+                code: "DSBA 2210",
+                description:
+                  "Principles and techniques for data visualization.",
+                metadata: {
+                  faculty: ["fac-garcia"],
+                  prerequisites: ["course-stats-foundations"],
+                  relatedCourses: ["course-big-data"],
+                  lab: "lab-analytics",
+                },
+              },
             ],
           },
         ],
@@ -447,124 +762,8 @@ const baseHierarchicalData: TreeNode[] = [
   },
 ];
 
-interface MetadataUpdates {
-  [key: string]: {
-    metadata: Record<string, unknown>;
-  };
-}
-
-const courseMetadataUpdates: MetadataUpdates = {
-  "course-deep-learning": {
-    metadata: {
-      faculty: ["fac-jones"],
-      teachingAssistants: ["phd-chen", "phd-zhang"],
-      prerequisites: ["course-ml-intro"],
-      relatedCourses: ["course-computer-vision"],
-      lab: "lab-ai",
-      creditHours: 3,
-      termsOffered: ["Fall"],
-      typicalClassSize: 35,
-      format: "In-Person",
-      avgGPA: 3.4,
-      successRate: "85%",
-      topics: [
-        "Deep Neural Networks",
-        "Convolutional Networks",
-        "Transformers",
-        "Deep Learning Frameworks",
-      ],
-    },
-  },
-  "course-hci": {
-    metadata: {
-      faculty: ["fac-chen"],
-      teachingAssistants: ["phd-garcia", "phd-lee"],
-      prerequisites: [],
-      relatedCourses: ["course-ui-design"],
-      lab: "lab-hci",
-      creditHours: 3,
-      termsOffered: ["Fall", "Spring"],
-      typicalClassSize: 45,
-      format: "Hybrid",
-      avgGPA: 3.5,
-      successRate: "92%",
-      topics: [
-        "User-Centered Design",
-        "Usability Testing",
-        "Interface Design Principles",
-        "Accessibility",
-      ],
-    },
-  },
-};
-
-const programMetadataUpdates: MetadataUpdates = {
-  "prog-bs-cs": {
-    metadata: {
-      creditHours: 120,
-      duration: "4 years",
-      tuition: 25000,
-      careerOutcomes: {
-        roles: [
-          "Software Engineer",
-          "Machine Learning Engineer",
-          "Full Stack Developer",
-          "Data Scientist",
-        ],
-        companies: ["Google", "Microsoft", "Amazon", "Local Tech Startups"],
-        averageSalary: 85000,
-        employmentRate: "94% within 6 months",
-      },
-      admissionInfo: {
-        gpaRequirement: 3.0,
-        prerequisites: ["Advanced Math", "Basic Programming Experience"],
-        deadlines: {
-          Fall: "May 1",
-          Spring: "November 1",
-        },
-      },
-    },
-  },
-};
-
-// Then keep the applyMetadataUpdates function and the rest of the code
-const applyMetadataUpdates = (node: TreeNode): TreeNode => {
-  // Create updated node
-  let updatedNode = { ...node };
-
-  // Apply course updates
-  if (node.type === NodeType.COURSE && courseMetadataUpdates[node.id]) {
-    updatedNode = {
-      ...updatedNode,
-      ...courseMetadataUpdates[node.id],
-    };
-  }
-
-  // Apply program updates
-  if (node.type === NodeType.PROGRAM && programMetadataUpdates[node.id]) {
-    updatedNode = {
-      ...updatedNode,
-      ...programMetadataUpdates[node.id],
-    };
-  }
-
-  // Recursively update children if they exist
-  if (updatedNode.children) {
-    updatedNode.children = updatedNode.children.map((child) =>
-      applyMetadataUpdates(child)
-    );
-  }
-
-  return updatedNode;
-};
-
-// Apply updates recursively
-const updatedMockData = baseHierarchicalData.map((node) =>
-  applyMetadataUpdates(node)
-);
-
-// Export the final version
-export const mockHierarchicalData = updatedMockData;
+// Export the hierarchical data directly
+export const mockHierarchicalData = baseHierarchicalData;
 
 // Add relationship types for visualization
 export enum RelationshipType {
@@ -734,6 +933,161 @@ export const relationships: Relationship[] = [
       year: 2024,
     },
   },
+  {
+    source: "course-ai-intro",
+    target: "course-ml-advanced",
+    type: RelationshipType.PREREQUISITE,
+    metadata: {
+      strength: 1,
+      description:
+        "Introduction to AI is required before taking Advanced Machine Learning",
+    },
+  },
+  {
+    source: "course-ai-intro",
+    target: "course-deep-learning",
+    type: RelationshipType.PREREQUISITE,
+    metadata: {
+      strength: 1,
+      description: "Foundation concepts required for deep learning",
+    },
+  },
+  {
+    source: "course-deep-learning",
+    target: "course-computer-vision",
+    type: RelationshipType.RELATED_CONTENT,
+    metadata: {
+      strength: 0.8,
+      description: "Deep learning concepts applied in computer vision",
+    },
+  },
+  {
+    source: "fac-smith",
+    target: "fac-jones",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.9,
+      description: "Joint research in deep learning applications",
+      year: 2024,
+    },
+  },
+  {
+    source: "phd-zhang",
+    target: "course-computer-vision",
+    type: RelationshipType.TEACHES_AS_TA,
+    metadata: {
+      strength: 0.8,
+      description: "Lab instructor for computer vision",
+      year: 2024,
+    },
+  },
+  {
+    source: "lab-ai",
+    target: "lab-hci",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.7,
+      description: "AI-powered interface adaptation research",
+      year: 2024,
+    },
+  },
+  {
+    source: "course-nlp",
+    target: "course-ml-advanced",
+    type: RelationshipType.PREREQUISITE,
+    metadata: {
+      strength: 0.8,
+      description: "ML concepts required for advanced NLP",
+    }
+  },
+  {
+    source: "fac-wilson",
+    target: "fac-jones",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.9,
+      description: "Joint research in NLP applications",
+      year: 2024
+    }
+  },
+  {
+    source: "lab-nlp",
+    target: "lab-ai",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.8,
+      description: "Collaborative AI/NLP research projects",
+      year: 2024
+    }
+  },
+  {
+    source: "course-quantum-computing",
+    target: "course-advanced-algorithms",
+    type: RelationshipType.RELATED_CONTENT,
+    metadata: {
+      strength: 0.7,
+      description: "Quantum algorithms complement classical algorithms",
+    }
+  },
+  {
+    source: "lab-quantum",
+    target: "lab-ai",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.6,
+      description: "Quantum machine learning research",
+      year: 2024
+    }
+  },
+  {
+    source: "fac-thompson",
+    target: "fac-chen",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.8,
+      description: "VR/AR interface research collaboration",
+      year: 2024
+    }
+  },
+  {
+    source: "lab-xr",
+    target: "lab-hci",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.9,
+      description: "XR interface design research",
+      year: 2024
+    }
+  },
+  {
+    source: "lab-edge",
+    target: "lab-systems",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.7,
+      description: "Distributed edge computing research",
+      year: 2024
+    }
+  },
+  {
+    source: "fac-martinez",
+    target: "fac-brown",
+    type: RelationshipType.COLLABORATES,
+    metadata: {
+      strength: 0.8,
+      description: "Edge systems security research",
+      year: 2024
+    }
+  },
+  {
+    source: "course-iot-fundamentals",
+    target: "course-distributed-systems",
+    type: RelationshipType.RELATED_CONTENT,
+    metadata: {
+      strength: 0.7,
+      description: "IoT systems build on distributed systems concepts"
+    }
+  }
 ];
 
 // Add PhD Student interface
@@ -848,4 +1202,64 @@ export const phdStudents: PhDStudent[] = [
     publications: 7,
     collaborators: ["phd-lee", "phd-patel"],
   },
+  {
+    id: "phd-wilson",
+    name: "James Wilson",
+    year: 2,
+    advisor: "fac-zhang",
+    labId: "lab-robotics",
+    teachingCourses: ["course-robotics"],
+    pastTaughtCourses: [],
+    researchAreas: ["Robotics", "Autonomous Systems"],
+    publications: 2,
+    collaborators: ["phd-zhang", "phd-chen"],
+  },
+  {
+    id: "phd-thompson",
+    name: "Sarah Thompson",
+    year: 3,
+    advisor: "fac-davis",
+    labId: "lab-quantum",
+    teachingCourses: ["course-quantum-computing"],
+    pastTaughtCourses: ["course-programming-1"],
+    researchAreas: ["Quantum Computing", "Quantum Algorithms"],
+    publications: 3,
+    collaborators: ["phd-wilson", "phd-zhang"]
+  },
+  {
+    id: "phd-martinez",
+    name: "Carlos Martinez",
+    year: 4,
+    advisor: "fac-martinez",
+    labId: "lab-edge",
+    teachingCourses: ["course-iot-fundamentals"],
+    pastTaughtCourses: ["course-distributed-systems"],
+    researchAreas: ["Edge Computing", "IoT Systems"],
+    publications: 5,
+    collaborators: ["phd-brown", "phd-kumar"]
+  },
+  {
+    id: "phd-anderson",
+    name: "Emily Anderson",
+    year: 2,
+    advisor: "fac-thompson",
+    labId: "lab-xr",
+    teachingCourses: ["course-vr-fundamentals"],
+    pastTaughtCourses: [],
+    researchAreas: ["Virtual Reality", "Human-Computer Interaction"],
+    publications: 2,
+    collaborators: ["phd-garcia", "phd-lee"]
+  },
+  {
+    id: "phd-wilson",
+    name: "Michael Wilson",
+    year: 5,
+    advisor: "fac-wilson",
+    labId: "lab-nlp",
+    teachingCourses: ["course-nlp"],
+    pastTaughtCourses: ["course-ml-intro", "course-programming-2"],
+    researchAreas: ["Natural Language Processing", "Machine Learning"],
+    publications: 6,
+    collaborators: ["phd-zhang", "phd-kumar"]
+  }
 ];

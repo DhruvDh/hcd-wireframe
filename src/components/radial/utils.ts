@@ -13,21 +13,29 @@ export interface PositionedNode extends TreeNode {
   radius: number;
 }
 
+// Helper function for cotangent
+const cot = (x: number): number => {
+  return Math.cos(x) / Math.sin(x);
+};
+
 export const calculateNodePositions = (
   nodes: TreeNode[],
   width: number,
   height: number,
-  centerRadius: number = 200
+  centerRadius: number = Math.min(width, height) * 0.3
 ): PositionedNode[] => {
   const center = { x: width / 2, y: height / 2 };
   const angleStep = (2 * Math.PI) / nodes.length;
+  
+  const jitter = centerRadius * 0.1;
 
   return nodes.map((node, i) => {
     const angle = i * angleStep;
+    const radius = centerRadius + (Math.random() - 0.5) * jitter;
     return {
       ...node,
-      x: center.x + Math.cos(angle) * centerRadius,
-      y: center.y + Math.sin(angle) * centerRadius,
+      x: center.x + Math.cos(angle) * radius,
+      y: center.y + Math.sin(angle) * radius,
       radius: getNodeRadius(node),
     };
   });
@@ -36,15 +44,17 @@ export const calculateNodePositions = (
 export const getNodeRadius = (node: TreeNode): number => {
   switch (node.type) {
     case 'college':
-      return 40;
+      return 45;
     case 'department':
-      return 35;
+      return 40;
     case 'program':
-      return 30;
+      return 35;
     case 'course':
-      return 25;
+      return 30;
+    case 'faculty':
+      return 35;
     default:
-      return 20;
+      return 25;
   }
 };
 
@@ -91,13 +101,38 @@ export const calculateCurvedPath = (
   const dy = target.y - source.y;
   const dr = Math.sqrt(dx * dx + dy * dy);
   
-  // Calculate points where line should start/end (on node boundaries)
+  // Rectangle dimensions
+  const sourceWidth = source.radius * 2;
+  const sourceHeight = source.radius * 1.5;
+  const targetWidth = target.radius * 2;
+  const targetHeight = target.radius * 1.5;
+  
+  // Calculate angle between nodes
   const angle = Math.atan2(dy, dx);
-  const sourceX = source.x + Math.cos(angle) * source.radius;
-  const sourceY = source.y + Math.sin(angle) * source.radius;
-  const targetX = target.x - Math.cos(angle) * target.radius;
-  const targetY = target.y - Math.sin(angle) * target.radius;
+  
+  // Calculate intersection points with rectangles
+  let sourceX, sourceY, targetX, targetY;
+  
+  // Source intersection
+  if (Math.abs(Math.cos(angle)) * sourceHeight > Math.abs(Math.sin(angle)) * sourceWidth) {
+    // Intersect with vertical edge
+    sourceX = source.x + Math.sign(Math.cos(angle)) * sourceWidth / 2;
+    sourceY = source.y + Math.tan(angle) * Math.sign(Math.cos(angle)) * sourceWidth / 2;
+  } else {
+    // Intersect with horizontal edge
+    sourceX = source.x + cot(angle) * Math.sign(Math.sin(angle)) * sourceHeight / 2;
+    sourceY = source.y + Math.sign(Math.sin(angle)) * sourceHeight / 2;
+  }
+  
+  // Target intersection (similar but reversed)
+  if (Math.abs(Math.cos(angle)) * targetHeight > Math.abs(Math.sin(angle)) * targetWidth) {
+    targetX = target.x - Math.sign(Math.cos(angle)) * targetWidth / 2;
+    targetY = target.y - Math.tan(angle) * Math.sign(Math.cos(angle)) * targetWidth / 2;
+  } else {
+    targetX = target.x - cot(angle) * Math.sign(Math.sin(angle)) * targetHeight / 2;
+    targetY = target.y - Math.sign(Math.sin(angle)) * targetHeight / 2;
+  }
 
   // Create curved path
   return `M ${sourceX} ${sourceY} A ${dr} ${dr} 0 0 1 ${targetX} ${targetY}`;
-}; 
+};

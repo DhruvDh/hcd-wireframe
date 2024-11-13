@@ -24,13 +24,6 @@ export const TreePanel: React.FC<TreePanelProps> = ({
     const findNode = (nodes: TreeNode[]): TreeNode | undefined => {
       for (const node of nodes) {
         if (node.id === nodeId) {
-          // If selecting a parent, select all children
-          if (node.children) {
-            const allChildren = getAllChildren(node);
-            allChildren.forEach(child => {
-              onNodeSelect(child, panel);
-            });
-          }
           return node;
         }
         if (node.children) {
@@ -43,23 +36,9 @@ export const TreePanel: React.FC<TreePanelProps> = ({
 
     const selectedNode = findNode(data);
     if (selectedNode) {
-      console.log('Selecting node:', selectedNode);
+      // Simply pass the node selection up to the parent
       onNodeSelect(selectedNode, panel);
     }
-  };
-
-  // Helper function to get all children of a node
-  const getAllChildren = (node: TreeNode): TreeNode[] => {
-    const children: TreeNode[] = [];
-    if (node.children) {
-      node.children.forEach(child => {
-        children.push(child);
-        if (child.children) {
-          children.push(...getAllChildren(child));
-        }
-      });
-    }
-    return children;
   };
 
   return (

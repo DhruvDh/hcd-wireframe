@@ -1,6 +1,10 @@
-import React from 'react';
-import { Relationship, RelationshipType } from '@/lib/mock-data';
-import { PositionedNode, getRelationshipStyle, calculateCurvedPath } from './utils';
+import React from "react";
+import { Relationship, RelationshipType } from "@/lib/mock-data";
+import {
+  PositionedNode,
+  getRelationshipStyle,
+  calculateCurvedPath,
+} from "./utils";
 
 interface RelationshipPathProps {
   source: PositionedNode;
@@ -22,8 +26,7 @@ export const RelationshipPath: React.FC<RelationshipPathProps> = ({
   const style = getRelationshipStyle(relationship.type);
   const path = calculateCurvedPath(source, target);
   const relationshipId = `${relationship.source}-${relationship.target}-${relationship.type}`;
-  
-  // Calculate stroke width based on relationship strength
+
   const baseWidth = style.strokeWidth;
   const strengthMultiplier = relationship.metadata?.strength || 1;
   const strokeWidth = baseWidth * strengthMultiplier;
@@ -41,43 +44,39 @@ export const RelationshipPath: React.FC<RelationshipPathProps> = ({
         onMouseEnter={() => onHover(relationshipId)}
         onMouseLeave={() => onHover(null)}
         onClick={() => onClick(relationship)}
-        style={{ cursor: 'pointer' }}
-        markerEnd={relationship.type === RelationshipType.PREREQUISITE ? 
-          `url(#arrow-${relationshipId})` : undefined}
+        style={{ cursor: "pointer" }}
+        markerEnd={
+          relationship.type === RelationshipType.PREREQUISITE
+            ? `url(#arrow-${relationshipId})`
+            : undefined
+        }
       />
 
-      {/* Arrow marker for directed relationships */}
-      {relationship.type === RelationshipType.PREREQUISITE && (
-        <defs>
-          <marker
-            id={`arrow-${relationshipId}`}
-            viewBox="0 0 10 10"
-            refX="9"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path 
-              d="M 0 0 L 10 5 L 0 10 z" 
-              fill={style.color}
-              opacity={isHighlighted ? 1 : 0.6}
-            />
-          </marker>
-        </defs>
+      {/* Glow effect */}
+      {isHighlighted && (
+        <path
+          d={path}
+          fill="none"
+          stroke={style.color}
+          strokeWidth={strokeWidth * 2}
+          opacity={0.1}
+          style={{
+            filter: "blur(4px)"
+          }}
+        />
       )}
 
-      {/* Hover area (wider invisible path for easier interaction) */}
+      {/* Hover area */}
       <path
         d={path}
         fill="none"
         stroke="transparent"
         strokeWidth={strokeWidth + 10}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: "pointer" }}
         onMouseEnter={() => onHover(relationshipId)}
         onMouseLeave={() => onHover(null)}
         onClick={() => onClick(relationship)}
       />
     </g>
   );
-}; 
+};
