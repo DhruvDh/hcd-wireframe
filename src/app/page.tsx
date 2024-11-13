@@ -5,8 +5,14 @@ import { useState } from "react";
 import HierarchicalView from "@/components/hierarchical/HierarchicalView";
 import { TreeNode } from "@/types/tree";
 
+// Define the SelectedNode type to match HierarchicalView
+interface SelectedNode extends TreeNode {
+  panel: 'left' | 'right';
+}
+
 export default function Home() {
-  const [_selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  // Update the state type to match what HierarchicalView expects
+  const [selectedNodes, setSelectedNodes] = useState<Record<string, SelectedNode>>({});
 
   return (
     <main className="flex min-h-screen flex-col">
