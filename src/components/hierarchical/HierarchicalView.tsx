@@ -73,7 +73,7 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
 
   const handleSearchSelect = (node: TreeNode) => {
     const existingSelection = Object.entries(selectedNodes).find(
-      ([_, selectedNode]) => selectedNode.id === node.id
+      ([key, selectedNode]) => selectedNode.id === node.id
     );
 
     if (existingSelection) {
