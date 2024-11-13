@@ -6,7 +6,7 @@ import HierarchicalView from "@/components/hierarchical/HierarchicalView";
 import { TreeNode } from "@/types/tree";
 
 export default function Home() {
-  const [selectedNodes, setSelectedNodes] = useState<Record<string, TreeNode & { panel: 'left' | 'right' }>>({});
+  const [_selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
   return (
     <main className="flex min-h-screen flex-col">

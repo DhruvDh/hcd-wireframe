@@ -4,8 +4,6 @@ import { College, Department, Program, Course, Faculty } from "@/types";
 import {
   NodeType,
   TreeNode,
-  CourseMetadata,
-  ProgramMetadata,
 } from "@/types/tree";
 
 export const colleges: College[] = [

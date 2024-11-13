@@ -5,9 +5,6 @@ import { relationships, RelationshipType } from '@/lib/mock-data';
 import { Legend } from './Legend';
 import {
   calculateNodePositions,
-  getNodeRadius,
-  getRelationshipStyle,
-  calculateCurvedPath,
   PositionedNode,
 } from './utils';
 import { RelationshipPath } from './RelationshipPath';
