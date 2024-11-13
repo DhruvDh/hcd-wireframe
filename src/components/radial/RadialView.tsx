@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { TreeNode, NodeType } from "@/types/tree";
-import { relationships, RelationshipType, courses, faculty, programs } from "@/lib/mock-data";
+import {
+  relationships,
+  RelationshipType,
+  courses,
+  faculty,
+  programs,
+} from "@/lib/mock-data";
 import { Legend } from "./Legend";
 import {
   calculateNodePositions,
@@ -35,88 +41,102 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
   // Helper function to get node data from ID
   const getNodeDataFromId = (id: string): TreeNode => {
     // Check courses
-    const course = courses.find(c => c.id === id);
+    const course = courses.find((c) => c.id === id);
     if (course) {
       return {
         id: course.id,
         name: course.title,
         type: NodeType.COURSE,
-        description: course.description
+        description: course.description,
       };
     }
 
     // Check faculty
-    const facultyMember = faculty.find(f => f.id === id);
+    const facultyMember = faculty.find((f) => f.id === id);
     if (facultyMember) {
       return {
         id: facultyMember.id,
         name: facultyMember.name,
         type: NodeType.FACULTY,
-        description: `${facultyMember.title} - ${facultyMember.researchAreas.join(", ")}`
+        description: `${
+          facultyMember.title
+        } - ${facultyMember.researchAreas.join(", ")}`,
       };
     }
 
     // Check programs
-    const program = programs.find(p => p.id === id);
+    const program = programs.find((p) => p.id === id);
     if (program) {
       return {
         id: program.id,
         name: program.name,
         type: NodeType.PROGRAM,
-        description: program.description
+        description: program.description,
       };
     }
 
     // If no match found, return a default node with the ID
     return {
       id,
-      name: id.replace(/^(course-|fac-|prog-)/, '').replace(/-/g, ' '),
+      name: id.replace(/^(course-|fac-|prog-)/, "").replace(/-/g, " "),
       type: NodeType.COURSE, // Default type
-      description: 'No description available'
+      description: "No description available",
     };
   };
 
   // Helper function to normalize IDs
   const normalizeId = (id: string): string => {
     // If it already has a prefix, return as is
-    if (id.startsWith('course-') || id.startsWith('fac-') || id.startsWith('prog-')) {
+    if (
+      id.startsWith("course-") ||
+      id.startsWith("fac-") ||
+      id.startsWith("prog-")
+    ) {
       return id;
     }
-    
+
     // Try to match with existing course
-    const matchingCourse = courses.find(c => 
-      c.title.toLowerCase() === id.toLowerCase() ||
-      c.id.replace('course-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    const matchingCourse = courses.find(
+      (c) =>
+        c.title.toLowerCase() === id.toLowerCase() ||
+        c.id.replace("course-", "").replace(/-/g, " ").toLowerCase() ===
+          id.toLowerCase()
     );
     if (matchingCourse) return matchingCourse.id;
 
     // Try to match with faculty
-    const matchingFaculty = faculty.find(f => 
-      f.name.toLowerCase() === id.toLowerCase() ||
-      f.id.replace('fac-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    const matchingFaculty = faculty.find(
+      (f) =>
+        f.name.toLowerCase() === id.toLowerCase() ||
+        f.id.replace("fac-", "").replace(/-/g, " ").toLowerCase() ===
+          id.toLowerCase()
     );
     if (matchingFaculty) return matchingFaculty.id;
 
     // Try to match with program
-    const matchingProgram = programs.find(p => 
-      p.name.toLowerCase() === id.toLowerCase() ||
-      p.id.replace('prog-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    const matchingProgram = programs.find(
+      (p) =>
+        p.name.toLowerCase() === id.toLowerCase() ||
+        p.id.replace("prog-", "").replace(/-/g, " ").toLowerCase() ===
+          id.toLowerCase()
     );
     if (matchingProgram) return matchingProgram.id;
 
     // If no match found, create a consistent ID format
-    return `course-${id.toLowerCase().replace(/\s+/g, '-')}`;
+    return `course-${id.toLowerCase().replace(/\s+/g, "-")}`;
   };
 
   // Get all related nodes through relationships with normalized IDs
   const getRelatedNodes = () => {
-    const selectedNodeIds = Object.values(selectedNodes).map(node => normalizeId(node.id));
+    const selectedNodeIds = Object.values(selectedNodes).map((node) =>
+      normalizeId(node.id)
+    );
     const relatedNodeIds = new Set<string>();
-    
-    relationships.forEach(rel => {
+
+    relationships.forEach((rel) => {
       const normalizedSource = normalizeId(rel.source);
       const normalizedTarget = normalizeId(rel.target);
-      
+
       if (selectedNodeIds.includes(normalizedSource)) {
         relatedNodeIds.add(normalizedTarget);
       }
@@ -127,15 +147,15 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
 
     // Convert IDs to full node data
     return Array.from(relatedNodeIds)
-      .filter(id => !selectedNodeIds.includes(id)) // Exclude already selected nodes
-      .map(id => ({
+      .filter((id) => !selectedNodeIds.includes(id)) // Exclude already selected nodes
+      .map((id) => ({
         ...getNodeDataFromId(id),
-        isRelated: true
+        isRelated: true,
       }));
   };
 
   // Combine selected and related nodes
-  const allNodes = showRelated 
+  const allNodes = showRelated
     ? [...Object.values(selectedNodes), ...getRelatedNodes()]
     : Object.values(selectedNodes);
 
@@ -149,19 +169,21 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
   const relevantRelationships = relationships.filter((rel) => {
     const normalizedSource = normalizeId(rel.source);
     const normalizedTarget = normalizeId(rel.target);
-    
-    const sourceExists = allNodes.some(node => 
-      normalizeId(node.id) === normalizedSource
+
+    const sourceExists = allNodes.some(
+      (node) => normalizeId(node.id) === normalizedSource
     );
-    const targetExists = allNodes.some(node => 
-      normalizeId(node.id) === normalizedTarget
+    const targetExists = allNodes.some(
+      (node) => normalizeId(node.id) === normalizedTarget
     );
-    
+
     return sourceExists && targetExists && activeTypes.includes(rel.type);
   });
 
   // Modify the getNodeColor function to handle related nodes
-  const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
+  const getNodeColor = (
+    node: PositionedNode & { isRelated?: boolean }
+  ): string => {
     if (node.isRelated) {
       // Use a lighter shade for related nodes
       switch (node.type) {
@@ -177,7 +199,7 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
           return "#f3f4f6"; // gray-100
       }
     }
-    
+
     // Original colors for selected nodes
     switch (node.type) {
       case NodeType.COLLEGE:
@@ -266,17 +288,12 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
 
   // Modify relationship rendering to use normalized IDs
   const findNodeWithNormalizedId = (id: string, nodes: PositionedNode[]) => {
-    return nodes.find(n => normalizeId(n.id) === normalizeId(id));
+    return nodes.find((n) => normalizeId(n.id) === normalizeId(id));
   };
 
   const renderBackground = () => (
     <defs>
-      <pattern
-        id="grid"
-        width="40"
-        height="40"
-        patternUnits="userSpaceOnUse"
-      >
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
         <path
           d="M 40 0 L 0 0 0 40"
           fill="none"
@@ -295,14 +312,15 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
           onClick={() => setShowRelated(!showRelated)}
           className={`
             px-4 py-2 rounded-lg shadow-lg font-medium
-            ${showRelated 
-              ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+            ${
+              showRelated
+                ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                : "bg-blue-500 text-white hover:bg-blue-600"
             }
             transition-colors duration-200
           `}
         >
-          {showRelated ? 'Hide Related' : 'Go Deeper'}
+          {showRelated ? "Hide Related" : "Go Deeper"}
         </button>
       </div>
 
@@ -344,11 +362,19 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
         >
           {/* Render relationships */}
           {relevantRelationships.map((rel) => {
-            const source = findNodeWithNormalizedId(rel.source, positionedNodes);
-            const target = findNodeWithNormalizedId(rel.target, positionedNodes);
+            const source = findNodeWithNormalizedId(
+              rel.source,
+              positionedNodes
+            );
+            const target = findNodeWithNormalizedId(
+              rel.target,
+              positionedNodes
+            );
             if (!source || !target) return null;
 
-            const relationshipId = `${normalizeId(rel.source)}-${normalizeId(rel.target)}-${rel.type}`;
+            const relationshipId = `${normalizeId(rel.source)}-${normalizeId(
+              rel.target
+            )}-${rel.type}`;
             const isHighlighted = hoveredNode
               ? hoveredNode === rel.source || hoveredNode === rel.target
               : hoveredRelationship === relationshipId;
@@ -370,8 +396,9 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
           {positionedNodes.map((node) => {
             const width = node.radius * 2;
             const height = node.radius * 1.5;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const isRelated = (node as any).isRelated;
-            
+
             return (
               <g
                 key={node.id}
@@ -386,27 +413,28 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
                   y={-height / 2}
                   width={width}
                   height={height}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   fill={getNodeColor(node as any)}
                   stroke={isRelated ? "#9ca3af" : "#374151"} // Lighter border for related nodes
                   strokeWidth={isRelated ? 1 : 2}
                   rx={4}
                   opacity={
-                    hoveredNode 
-                      ? hoveredNode === node.id 
-                        ? 1 
-                        : isRelated 
-                          ? 0.3 
-                          : 0.5
-                      : isRelated 
-                        ? 0.7 
-                        : 1
+                    hoveredNode
+                      ? hoveredNode === node.id
+                        ? 1
+                        : isRelated
+                        ? 0.3
+                        : 0.5
+                      : isRelated
+                      ? 0.7
+                      : 1
                   }
                 />
                 <text
                   textAnchor="middle"
                   dy="-0.1em"
                   className={`text-sm font-medium ${
-                    isRelated ? 'fill-gray-600' : 'fill-gray-900'
+                    isRelated ? "fill-gray-600" : "fill-gray-900"
                   }`}
                 >
                   {node.name}
@@ -415,7 +443,7 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
                   textAnchor="middle"
                   dy="1.2em"
                   className={`text-xs ${
-                    isRelated ? 'fill-gray-500' : 'fill-gray-600'
+                    isRelated ? "fill-gray-500" : "fill-gray-600"
                   }`}
                 >
                   {node.type}
