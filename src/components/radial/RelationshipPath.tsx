@@ -31,6 +31,35 @@ export const RelationshipPath: React.FC<RelationshipPathProps> = ({
   const strengthMultiplier = relationship.metadata?.strength || 1;
   const strokeWidth = baseWidth * strengthMultiplier;
 
+  // Calculate control points for curved path
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const midX = (source.x + target.x) / 2;
+  const midY = (source.y + target.y) / 2;
+  
+  // Curve intensity based on distance
+  const intensity = Math.sqrt(dx * dx + dy * dy) * 0.2;
+  
+  // Control point offset perpendicular to line
+  const cpX = midX - dy * intensity / Math.sqrt(dx * dx + dy * dy);
+  const cpY = midY + dx * intensity / Math.sqrt(dx * dx + dy * dy);
+
+  // Get path styling based on relationship type
+  const getPathStyles = () => {
+    switch(relationship.type) {
+      case RelationshipType.TEACHES:
+        return "stroke-blue-500 stroke-[3px]";
+      case RelationshipType.PREREQUISITE:
+        return "stroke-red-500 stroke-[2px] stroke-dashed";
+      case RelationshipType.COLLABORATES:
+        return "stroke-purple-400 stroke-[2px] stroke-dotted";
+      case RelationshipType.RESEARCHES:
+        return "stroke-green-500 stroke-[3px]";
+      default:
+        return "stroke-gray-300 stroke-[1px]";
+    }
+  };
+
   return (
     <g>
       {/* Main path */}

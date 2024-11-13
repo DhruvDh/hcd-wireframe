@@ -88,7 +88,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search nodes..."
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 pl-10 text-lg border-2 border-blue-500 rounded-lg 
+          shadow-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300
+          bg-white dark:bg-gray-800 dark:border-blue-400 search-bar-animation"
         />
         {query && (
           <button

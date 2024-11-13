@@ -19,3 +19,27 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.node-glow {
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1));
+}
+
+.node-glow:hover {
+  filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes searchBarPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.search-bar-animation {
+  animation: searchBarPulse 2s ease-in-out 1s;
+}

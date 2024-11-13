@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { TreeNode, NodeType } from "@/types/tree";
-import { relationships, RelationshipType } from "@/lib/mock-data";
+import { relationships, RelationshipType, courses, faculty, programs } from "@/lib/mock-data";
 import { Legend } from "./Legend";
 import {
   calculateNodePositions,
@@ -30,6 +30,168 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
   const [selectedRelationship, setSelectedRelationship] =
     useState<Relationship | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [showRelated, setShowRelated] = useState(false);
+
+  // Helper function to get node data from ID
+  const getNodeDataFromId = (id: string): TreeNode => {
+    // Check courses
+    const course = courses.find(c => c.id === id);
+    if (course) {
+      return {
+        id: course.id,
+        name: course.title,
+        type: NodeType.COURSE,
+        description: course.description
+      };
+    }
+
+    // Check faculty
+    const facultyMember = faculty.find(f => f.id === id);
+    if (facultyMember) {
+      return {
+        id: facultyMember.id,
+        name: facultyMember.name,
+        type: NodeType.FACULTY,
+        description: `${facultyMember.title} - ${facultyMember.researchAreas.join(", ")}`
+      };
+    }
+
+    // Check programs
+    const program = programs.find(p => p.id === id);
+    if (program) {
+      return {
+        id: program.id,
+        name: program.name,
+        type: NodeType.PROGRAM,
+        description: program.description
+      };
+    }
+
+    // If no match found, return a default node with the ID
+    return {
+      id,
+      name: id.replace(/^(course-|fac-|prog-)/, '').replace(/-/g, ' '),
+      type: NodeType.COURSE, // Default type
+      description: 'No description available'
+    };
+  };
+
+  // Helper function to normalize IDs
+  const normalizeId = (id: string): string => {
+    // If it already has a prefix, return as is
+    if (id.startsWith('course-') || id.startsWith('fac-') || id.startsWith('prog-')) {
+      return id;
+    }
+    
+    // Try to match with existing course
+    const matchingCourse = courses.find(c => 
+      c.title.toLowerCase() === id.toLowerCase() ||
+      c.id.replace('course-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    );
+    if (matchingCourse) return matchingCourse.id;
+
+    // Try to match with faculty
+    const matchingFaculty = faculty.find(f => 
+      f.name.toLowerCase() === id.toLowerCase() ||
+      f.id.replace('fac-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    );
+    if (matchingFaculty) return matchingFaculty.id;
+
+    // Try to match with program
+    const matchingProgram = programs.find(p => 
+      p.name.toLowerCase() === id.toLowerCase() ||
+      p.id.replace('prog-', '').replace(/-/g, ' ').toLowerCase() === id.toLowerCase()
+    );
+    if (matchingProgram) return matchingProgram.id;
+
+    // If no match found, create a consistent ID format
+    return `course-${id.toLowerCase().replace(/\s+/g, '-')}`;
+  };
+
+  // Get all related nodes through relationships with normalized IDs
+  const getRelatedNodes = () => {
+    const selectedNodeIds = Object.values(selectedNodes).map(node => normalizeId(node.id));
+    const relatedNodeIds = new Set<string>();
+    
+    relationships.forEach(rel => {
+      const normalizedSource = normalizeId(rel.source);
+      const normalizedTarget = normalizeId(rel.target);
+      
+      if (selectedNodeIds.includes(normalizedSource)) {
+        relatedNodeIds.add(normalizedTarget);
+      }
+      if (selectedNodeIds.includes(normalizedTarget)) {
+        relatedNodeIds.add(normalizedSource);
+      }
+    });
+
+    // Convert IDs to full node data
+    return Array.from(relatedNodeIds)
+      .filter(id => !selectedNodeIds.includes(id)) // Exclude already selected nodes
+      .map(id => ({
+        ...getNodeDataFromId(id),
+        isRelated: true
+      }));
+  };
+
+  // Combine selected and related nodes
+  const allNodes = showRelated 
+    ? [...Object.values(selectedNodes), ...getRelatedNodes()]
+    : Object.values(selectedNodes);
+
+  const positionedNodes = calculateNodePositions(
+    allNodes,
+    dimensions.width,
+    dimensions.height
+  );
+
+  // Filter relationships with normalized IDs
+  const relevantRelationships = relationships.filter((rel) => {
+    const normalizedSource = normalizeId(rel.source);
+    const normalizedTarget = normalizeId(rel.target);
+    
+    const sourceExists = allNodes.some(node => 
+      normalizeId(node.id) === normalizedSource
+    );
+    const targetExists = allNodes.some(node => 
+      normalizeId(node.id) === normalizedTarget
+    );
+    
+    return sourceExists && targetExists && activeTypes.includes(rel.type);
+  });
+
+  // Modify the getNodeColor function to handle related nodes
+  const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
+    if (node.isRelated) {
+      // Use a lighter shade for related nodes
+      switch (node.type) {
+        case NodeType.COLLEGE:
+          return "#bfdbfe"; // blue-200
+        case NodeType.DEPARTMENT:
+          return "#bbf7d0"; // green-200
+        case NodeType.PROGRAM:
+          return "#ddd6fe"; // purple-200
+        case NodeType.COURSE:
+          return "#fed7aa"; // orange-200
+        default:
+          return "#f3f4f6"; // gray-100
+      }
+    }
+    
+    // Original colors for selected nodes
+    switch (node.type) {
+      case NodeType.COLLEGE:
+        return "#93c5fd"; // blue-300
+      case NodeType.DEPARTMENT:
+        return "#86efac"; // green-300
+      case NodeType.PROGRAM:
+        return "#c4b5fd"; // purple-300
+      case NodeType.COURSE:
+        return "#fdba74"; // orange-300
+      default:
+        return "#e5e7eb"; // gray-200
+    }
+  };
 
   // Handle window resize
   useEffect(() => {
@@ -67,28 +229,6 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     svg.call(zoom.transform, initialTransform);
   }, [dimensions]);
 
-  const nodes = Object.values(selectedNodes);
-  const positionedNodes = calculateNodePositions(
-    nodes,
-    dimensions.width,
-    dimensions.height
-  );
-
-  // Filter relationships for selected nodes
-  const relevantRelationships = relationships.filter((rel) => {
-    const sourceExists = nodes.some(
-      (node) =>
-        node.id === rel.source ||
-        node.id === rel.source.replace("left-", "").replace("right-", "")
-    );
-    const targetExists = nodes.some(
-      (node) =>
-        node.id === rel.target ||
-        node.id === rel.target.replace("left-", "").replace("right-", "")
-    );
-    return sourceExists && targetExists && activeTypes.includes(rel.type);
-  });
-
   const handleNodeClick = (node: PositionedNode) => {
     if (!svgRef.current) return;
 
@@ -124,9 +264,56 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
     );
   };
 
+  // Modify relationship rendering to use normalized IDs
+  const findNodeWithNormalizedId = (id: string, nodes: PositionedNode[]) => {
+    return nodes.find(n => normalizeId(n.id) === normalizeId(id));
+  };
+
+  const renderBackground = () => (
+    <defs>
+      <pattern
+        id="grid"
+        width="40"
+        height="40"
+        patternUnits="userSpaceOnUse"
+      >
+        <path
+          d="M 40 0 L 0 0 0 40"
+          fill="none"
+          stroke="rgb(243 244 246)"
+          strokeWidth="1"
+        />
+      </pattern>
+    </defs>
+  );
+
   return (
     <div className="w-full h-full relative">
+      {/* Add Go Deeper button */}
+      <div className="absolute top-4 left-4 z-10">
+        <button
+          onClick={() => setShowRelated(!showRelated)}
+          className={`
+            px-4 py-2 rounded-lg shadow-lg font-medium
+            ${showRelated 
+              ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+            }
+            transition-colors duration-200
+          `}
+        >
+          {showRelated ? 'Hide Related' : 'Go Deeper'}
+        </button>
+      </div>
+
       <svg ref={svgRef} width="100%" height="100%" className="bg-white">
+        {renderBackground()}
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#grid)"
+          className="opacity-50"
+        />
         {/* Define markers once at the SVG level */}
         <defs>
           {relevantRelationships.map((rel) => {
@@ -157,11 +344,11 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
         >
           {/* Render relationships */}
           {relevantRelationships.map((rel) => {
-            const source = positionedNodes.find((n) => n.id === rel.source);
-            const target = positionedNodes.find((n) => n.id === rel.target);
+            const source = findNodeWithNormalizedId(rel.source, positionedNodes);
+            const target = findNodeWithNormalizedId(rel.target, positionedNodes);
             if (!source || !target) return null;
 
-            const relationshipId = `${rel.source}-${rel.target}-${rel.type}`;
+            const relationshipId = `${normalizeId(rel.source)}-${normalizeId(rel.target)}-${rel.type}`;
             const isHighlighted = hoveredNode
               ? hoveredNode === rel.source || hoveredNode === rel.target
               : hoveredRelationship === relationshipId;
@@ -179,11 +366,11 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
             );
           })}
 
-          {/* Render nodes as rectangles */}
+          {/* Render nodes with modified styling */}
           {positionedNodes.map((node) => {
-            // Calculate rectangle dimensions based on text
             const width = node.radius * 2;
             const height = node.radius * 1.5;
+            const isRelated = (node as any).isRelated;
             
             return (
               <g
@@ -199,23 +386,37 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
                   y={-height / 2}
                   width={width}
                   height={height}
-                  fill={getNodeColor(node.type)}
-                  stroke="#374151"
-                  strokeWidth={2}
-                  rx={4} // Rounded corners
-                  opacity={hoveredNode ? (hoveredNode === node.id ? 1 : 0.5) : 1}
+                  fill={getNodeColor(node as any)}
+                  stroke={isRelated ? "#9ca3af" : "#374151"} // Lighter border for related nodes
+                  strokeWidth={isRelated ? 1 : 2}
+                  rx={4}
+                  opacity={
+                    hoveredNode 
+                      ? hoveredNode === node.id 
+                        ? 1 
+                        : isRelated 
+                          ? 0.3 
+                          : 0.5
+                      : isRelated 
+                        ? 0.7 
+                        : 1
+                  }
                 />
                 <text
                   textAnchor="middle"
                   dy="-0.1em"
-                  className="text-sm font-medium fill-gray-900"
+                  className={`text-sm font-medium ${
+                    isRelated ? 'fill-gray-600' : 'fill-gray-900'
+                  }`}
                 >
                   {node.name}
                 </text>
                 <text
                   textAnchor="middle"
                   dy="1.2em"
-                  className="text-xs fill-gray-600"
+                  className={`text-xs ${
+                    isRelated ? 'fill-gray-500' : 'fill-gray-600'
+                  }`}
                 >
                   {node.type}
                 </text>
@@ -277,19 +478,4 @@ export const RadialView: React.FC<RadialViewProps> = ({ selectedNodes }) => {
       )}
     </div>
   );
-};
-
-const getNodeColor = (type: NodeType): string => {
-  switch (type) {
-    case NodeType.COLLEGE:
-      return "#93c5fd"; // blue-300
-    case NodeType.DEPARTMENT:
-      return "#86efac"; // green-300
-    case NodeType.PROGRAM:
-      return "#c4b5fd"; // purple-300
-    case NodeType.COURSE:
-      return "#fdba74"; // orange-300
-    default:
-      return "#e5e7eb"; // gray-200
-  }
 };

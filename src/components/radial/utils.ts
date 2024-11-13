@@ -19,26 +19,41 @@ const cot = (x: number): number => {
 };
 
 export const calculateNodePositions = (
-  nodes: TreeNode[],
+  nodes: (TreeNode & { isRelated?: boolean })[],
   width: number,
-  height: number,
-  centerRadius: number = Math.min(width, height) * 0.3
+  height: number
 ): PositionedNode[] => {
-  const center = { x: width / 2, y: height / 2 };
-  const angleStep = (2 * Math.PI) / nodes.length;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = Math.min(width, height) * 0.35;
   
-  const jitter = centerRadius * 0.1;
-
-  return nodes.map((node, i) => {
-    const angle = i * angleStep;
-    const radius = centerRadius + (Math.random() - 0.5) * jitter;
+  // Separate selected and related nodes
+  const selectedNodes = nodes.filter(n => !n.isRelated);
+  const relatedNodes = nodes.filter(n => n.isRelated);
+  
+  // Position selected nodes in inner circle
+  const selectedPositions = selectedNodes.map((node, i) => {
+    const angle = (i / selectedNodes.length) * 2 * Math.PI;
     return {
       ...node,
-      x: center.x + Math.cos(angle) * radius,
-      y: center.y + Math.sin(angle) * radius,
-      radius: getNodeRadius(node),
+      x: centerX + Math.cos(angle) * radius * 0.6, // Inner circle
+      y: centerY + Math.sin(angle) * radius * 0.6,
+      radius: 40,
     };
   });
+
+  // Position related nodes in outer circle
+  const relatedPositions = relatedNodes.map((node, i) => {
+    const angle = (i / relatedNodes.length) * 2 * Math.PI;
+    return {
+      ...node,
+      x: centerX + Math.cos(angle) * radius, // Outer circle
+      y: centerY + Math.sin(angle) * radius,
+      radius: 35, // Slightly smaller
+    };
+  });
+
+  return [...selectedPositions, ...relatedPositions];
 };
 
 export const getNodeRadius = (node: TreeNode): number => {
