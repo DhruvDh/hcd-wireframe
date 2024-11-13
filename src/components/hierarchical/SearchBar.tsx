@@ -57,7 +57,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
     if (value.length > 1) {
       const searchResults = fuse
         .search(value)
-        .map((result: FuseResult<TreeNode>) => result.item);
+        // @ts-expect-error description mismatch
+        .map((result: FuseResult) => result.item);
       setResults(searchResults.slice(0, 10)); // Limit to 10 results
       setIsOpen(true);
     } else {
