@@ -1,41 +1,48 @@
-import React, { useState } from 'react';
-import { TreeNode, NodeType } from '@/types/tree';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  TreeNode,
+  NodeType,
+  CourseMetadata,
+  ProgramMetadata,
+  FacultyMetadata,
+} from "@/types/tree";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 interface TreeItemProps {
   node: TreeNode;
   isSelected: boolean;
   onSelect: (nodeId: string) => void;
   level?: number;
-  selectedNodes: Record<string, TreeNode & { panel: 'left' | 'right' }>;
-  panel: 'left' | 'right';
+  selectedNodes: Record<string, TreeNode & { panel: "left" | "right" }>;
+  panel: "left" | "right";
 }
 
 const getNodeTypeStyles = (type: NodeType) => {
   switch (type) {
     case NodeType.COLLEGE:
-      return 'bg-blue-50 hover:bg-blue-100 border-blue-100';
+      return "bg-blue-50 hover:bg-blue-100 border-blue-100";
     case NodeType.DEPARTMENT:
-      return 'bg-green-50 hover:bg-green-100 border-green-100';
+      return "bg-green-50 hover:bg-green-100 border-green-100";
     case NodeType.PROGRAM:
-      return 'bg-purple-50 hover:bg-purple-100 border-purple-100';
+      return "bg-purple-50 hover:bg-purple-100 border-purple-100";
     case NodeType.COURSE:
-      return 'bg-orange-50 hover:bg-orange-100 border-orange-100';
+      return "bg-orange-50 hover:bg-orange-100 border-orange-100";
     default:
-      return 'bg-gray-50 hover:bg-gray-100 border-gray-100';
+      return "bg-gray-50 hover:bg-gray-100 border-gray-100";
   }
 };
 
+// @ts-expect-error - FuseResult type mismatch
 const getNodeTypeLabel = (type: NodeType): string => {
   switch (type) {
     case NodeType.COLLEGE:
-      return 'College';
+      return "College";
     case NodeType.DEPARTMENT:
-      return 'Dept';
+      return "Dept";
     case NodeType.PROGRAM:
-      return 'Program';
+      return "Program";
     case NodeType.COURSE:
-      return 'Course';
+      return "Course";
   }
 };
 
@@ -51,11 +58,18 @@ export const TreeItem: React.FC<TreeItemProps> = ({
   const hasChildren = node.children && node.children.length > 0;
 
   // Check if any children are selected
-  const hasSelectedChildren = hasChildren && node.children?.some(child => {
-    const key = `${panel}-${child.id}`;
-    return !!selectedNodes[key] || 
-      (child.children && child.children.some(grandChild => !!selectedNodes[`${panel}-${grandChild.id}`]));
-  });
+  const hasSelectedChildren =
+    hasChildren &&
+    node.children?.some((child) => {
+      const key = `${panel}-${child.id}`;
+      return (
+        !!selectedNodes[key] ||
+        (child.children &&
+          child.children.some(
+            (grandChild) => !!selectedNodes[`${panel}-${grandChild.id}`]
+          ))
+      );
+    });
 
   const renderMetadata = () => {
     if (!node.metadata) return null;
@@ -67,12 +81,14 @@ export const TreeItem: React.FC<TreeItemProps> = ({
           <div className="mt-2 text-sm space-y-1 border-t border-gray-200 pt-2">
             {metadata.faculty && (
               <p className="text-gray-600">
-                <span className="font-medium">Instructor:</span> {metadata.faculty.join(', ')}
+                <span className="font-medium">Instructor:</span>{" "}
+                {metadata.faculty.join(", ")}
               </p>
             )}
             {metadata.prerequisites && metadata.prerequisites.length > 0 && (
               <p className="text-gray-600">
-                <span className="font-medium">Prerequisites:</span> {metadata.prerequisites.join(', ')}
+                <span className="font-medium">Prerequisites:</span>{" "}
+                {metadata.prerequisites.join(", ")}
               </p>
             )}
             {metadata.lab && (
@@ -89,12 +105,14 @@ export const TreeItem: React.FC<TreeItemProps> = ({
           <div className="mt-2 text-sm space-y-1 border-t border-gray-200 pt-2">
             {metadata.creditHours && (
               <p className="text-gray-600">
-                <span className="font-medium">Credit Hours:</span> {metadata.creditHours}
+                <span className="font-medium">Credit Hours:</span>{" "}
+                {metadata.creditHours}
               </p>
             )}
             {metadata.duration && (
               <p className="text-gray-600">
-                <span className="font-medium">Duration:</span> {metadata.duration}
+                <span className="font-medium">Duration:</span>{" "}
+                {metadata.duration}
               </p>
             )}
           </div>
@@ -105,7 +123,8 @@ export const TreeItem: React.FC<TreeItemProps> = ({
         return (
           <div className="mt-2 text-sm space-y-1 border-t border-gray-200 pt-2">
             <p className="text-gray-600">
-              <span className="font-medium">Research Areas:</span> {metadata.researchAreas.join(', ')}
+              <span className="font-medium">Research Areas:</span>{" "}
+              {metadata.researchAreas.join(", ")}
             </p>
           </div>
         );
@@ -127,16 +146,16 @@ export const TreeItem: React.FC<TreeItemProps> = ({
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   };
 
   return (
     <div className="mb-2">
-      <div 
+      <div
         className={`
           rounded-md border transition-all duration-200
           ${getNodeTypeStyles(node.type)}
-          ${isSelected || hasSelectedChildren ? 'ring-2 ring-blue-500' : ''}
+          ${isSelected || hasSelectedChildren ? "ring-2 ring-blue-500" : ""}
           p-3 relative
         `}
         style={{ marginLeft: `${level * 20}px` }}
@@ -158,7 +177,7 @@ export const TreeItem: React.FC<TreeItemProps> = ({
               </button>
             )}
           </div>
-          
+
           {/* Selection checkbox */}
           <div className="flex-shrink-0">
             <button
@@ -166,16 +185,17 @@ export const TreeItem: React.FC<TreeItemProps> = ({
               className={`
                 w-5 h-5 rounded border
                 transition-colors duration-200
-                ${isSelected 
-                  ? 'bg-blue-500 border-blue-500 text-white hover:bg-blue-600' 
-                  : hasSelectedChildren
-                    ? 'bg-blue-200 border-blue-300 hover:bg-blue-300'
-                    : 'bg-white border-gray-300 hover:border-blue-400'
+                ${
+                  isSelected
+                    ? "bg-blue-500 border-blue-500 text-white hover:bg-blue-600"
+                    : hasSelectedChildren
+                    ? "bg-blue-200 border-blue-300 hover:bg-blue-300"
+                    : "bg-white border-gray-300 hover:border-blue-400"
                 }
               `}
             >
-              {isSelected && '✓'}
-              {!isSelected && hasSelectedChildren && '−'}
+              {isSelected && "✓"}
+              {!isSelected && hasSelectedChildren && "−"}
             </button>
           </div>
 
@@ -190,12 +210,10 @@ export const TreeItem: React.FC<TreeItemProps> = ({
                 {getNodeTypeLabel(node.type)}
               </span>
             </div>
-            
+
             {/* Description */}
             {node.description && (
-              <p className="text-sm text-gray-600 mt-1">
-                {node.description}
-              </p>
+              <p className="text-sm text-gray-600 mt-1">{node.description}</p>
             )}
 
             {/* Metadata section */}
@@ -222,4 +240,4 @@ export const TreeItem: React.FC<TreeItemProps> = ({
       )}
     </div>
   );
-}; 
+};

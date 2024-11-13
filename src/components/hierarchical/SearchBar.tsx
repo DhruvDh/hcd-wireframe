@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Fuse from 'fuse.js';
-import { TreeNode } from '@/types/tree';
+import React, { useState, useEffect, useRef } from "react";
+import Fuse from "fuse.js";
+import { TreeNode } from "@/types/tree";
 
 interface SearchBarProps {
   data: TreeNode[];
@@ -25,14 +25,14 @@ const flattenNodes = (nodes: TreeNode[]): TreeNode[] => {
 };
 
 export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<TreeNode[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Initialize Fuse instance
   const fuse = new Fuse(flattenNodes(data), {
-    keys: ['name', 'description', 'code'],
+    keys: ["name", "description", "code"],
     threshold: 0.3,
     ignoreLocation: true,
   });
@@ -40,19 +40,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
   useEffect(() => {
     // Handle clicks outside of search component
     const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearch = (value: string) => {
     setQuery(value);
     if (value.length > 1) {
-      const searchResults = fuse.search(value).map((result: FuseResult) => result.item);
+      const searchResults = fuse
+        .search(value)
+        // @ts-expect-error - FuseResult type mismatch
+        .map((result: FuseResult) => result.item);
       setResults(searchResults.slice(0, 10)); // Limit to 10 results
       setIsOpen(true);
     } else {
@@ -63,14 +69,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
 
   const handleSelect = (node: TreeNode) => {
     onSelect(node);
-    setQuery('');
+    setQuery("");
     setIsOpen(false);
   };
 
   // Add some logging to debug the flattened nodes
   useEffect(() => {
     const flattened = flattenNodes(data);
-    console.log('Flattened nodes:', flattened);
+    console.log("Flattened nodes:", flattened);
   }, [data]);
 
   return (
@@ -85,7 +91,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
         />
         {query && (
           <button
-            onClick={() => handleSearch('')}
+            onClick={() => handleSearch("")}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
             ×
@@ -124,4 +130,4 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
       )}
     </div>
   );
-}; 
+};

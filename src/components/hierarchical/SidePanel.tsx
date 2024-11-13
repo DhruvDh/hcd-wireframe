@@ -3,26 +3,27 @@ import { NodeType, TreeNode } from "@/types/tree";
 import { FilterSection } from "@/components/hierarchical/FilterSection";
 
 interface SelectedNode extends TreeNode {
-  panel: 'left' | 'right';
+  panel: "left" | "right";
 }
 
 interface SidePanelProps {
   selectedNodes: Record<string, SelectedNode>;
-  onRemoveSelection: (nodeId: string, panel: 'left' | 'right') => void;
+  onRemoveSelection: (nodeId: string, panel: "left" | "right") => void;
   onFilterChange: (filters: NodeType[]) => void;
   onExploreClick: () => void;
 }
 
+// @ts-expect-error - Duplicate function from TreeItem component, but needed for label display
 const getNodeTypeLabel = (type: NodeType): string => {
   switch (type) {
     case NodeType.COLLEGE:
-      return 'College';
+      return "College";
     case NodeType.DEPARTMENT:
-      return 'Dept';
+      return "Dept";
     case NodeType.PROGRAM:
-      return 'Program';
+      return "Program";
     case NodeType.COURSE:
-      return 'Course';
+      return "Course";
   }
 };
 
@@ -64,7 +65,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
       </div>
 
       {Object.keys(selectedNodes).length > 0 && (
-        <button 
+        <button
           onClick={onExploreClick}
           className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
         >
