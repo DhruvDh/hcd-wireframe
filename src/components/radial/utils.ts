@@ -79,31 +79,31 @@ export const getRelationshipStyle = (type: RelationshipType) => {
       return {
         strokeWidth: 2,
         strokeDasharray: "none",
-        color: "#4B5563", // gray-600
+        color: "#005035", // green
       };
     case RelationshipType.PREREQUISITE:
       return {
         strokeWidth: 2,
         strokeDasharray: "5,5",
-        color: "#DC2626", // red-600
+        color: "#B3A369", // gold
       };
     case RelationshipType.COLLABORATES:
       return {
         strokeWidth: 2,
         strokeDasharray: "2,2",
-        color: "#2563EB", // blue-600
+        color: "#007050", // lighter green
       };
     case RelationshipType.RESEARCHES:
       return {
         strokeWidth: 2,
         strokeDasharray: "none",
-        color: "#7C3AED", // purple-600
+        color: "#A39359", // darker gold
       };
     default:
       return {
         strokeWidth: 1,
         strokeDasharray: "none",
-        color: "#9CA3AF", // gray-400
+        color: "#9CA3AF",
       };
   }
 };
@@ -150,4 +150,37 @@ export const calculateCurvedPath = (
 
   // Create curved path
   return `M ${sourceX} ${sourceY} A ${dr} ${dr} 0 0 1 ${targetX} ${targetY}`;
+};
+
+// Update getNodeColor function
+const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
+  if (node.isRelated) {
+    // Use lighter shades for related nodes
+    switch (node.type) {
+      case NodeType.COLLEGE:
+        return "#007050"; // lighter green
+      case NodeType.DEPARTMENT:
+        return "#008060"; // light green
+      case NodeType.PROGRAM:
+        return "#C4B88E"; // lighter gold
+      case NodeType.COURSE:
+        return "#B3A369"; // gold
+      default:
+        return "#f3f4f6";
+    }
+  }
+
+  // Original colors for selected nodes
+  switch (node.type) {
+    case NodeType.COLLEGE:
+      return "#005035"; // green
+    case NodeType.DEPARTMENT:
+      return "#006045"; // slightly lighter green
+    case NodeType.PROGRAM:
+      return "#A39359"; // darker gold
+    case NodeType.COURSE:
+      return "#B3A369"; // gold
+    default:
+      return "#e5e7eb";
+  }
 };

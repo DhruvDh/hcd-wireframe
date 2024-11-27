@@ -5,6 +5,7 @@ import { TreeNode } from "@/types/tree";
 interface SearchBarProps {
   data: TreeNode[];
   onSelect: (node: TreeNode) => void;
+  placeholder?: string;
 }
 
 interface FuseResult {
@@ -24,7 +25,11 @@ const flattenNodes = (nodes: TreeNode[]): TreeNode[] => {
   }, []);
 };
 
-export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ 
+  data, 
+  onSelect,
+  placeholder = "Search for courses, faculty, or programs..." 
+}) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TreeNode[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +92,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search nodes..."
+          placeholder={placeholder}
           className="w-full px-4 py-3 pl-10 text-lg border-2 border-blue-500 rounded-lg 
           shadow-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300
           bg-white dark:bg-gray-800 dark:border-blue-400 search-bar-animation"

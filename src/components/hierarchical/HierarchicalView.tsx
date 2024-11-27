@@ -136,20 +136,34 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
         onRemoveSelection={handleRemoveSelection}
         onFilterChange={setActiveFilters}
         onExploreClick={() => setShowRadial(true)}
+        onBackClick={() => setShowRadial(false)}
+        showExploreButton={!showRadial}
       />
       {!showRadial ? (
         <div className="flex-1 flex flex-col">
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-[#005035]/20 bg-[#005035]/5">
+            <h1 className="text-3xl font-bold text-[#005035] mb-2">
+              Academic Compass - Browse Mode
+            </h1>
+            <p className="text-sm text-gray-500 italic mb-4">
+              Browse and select courses, faculty, or programs that interest you. The two panels below act as separate views 
+              into the same data, like having two monitors. Once you've made your selections, click "Explore Relationships" 
+              to discover how they're connected.
+            </p>
             <SearchBar 
               data={mockHierarchicalData} 
               onSelect={handleSearchSelect}
+              placeholder="Search for courses, faculty, or programs..."
             />
           </div>
           <div className="flex-1 flex">
             <div className="flex-1 border-r border-gray-200 min-h-[calc(100vh-4rem)]">
               <div className="p-4 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-lg font-semibold">Left Panel</h2>
-                <div className="text-sm text-gray-600">
+                <h2 className="text-lg font-semibold">Primary View</h2>
+                <p className="text-sm text-gray-500 italic">
+                  Both views show the same academic structure. Select items here to compare with the Secondary View.
+                </p>
+                <div className="text-sm text-gray-600 mt-2">
                   {getSelectedNodesForPanel('left').length} items selected
                 </div>
               </div>
@@ -164,8 +178,11 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
             </div>
             <div className="flex-1 min-h-[calc(100vh-4rem)]">
               <div className="p-4 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-lg font-semibold">Right Panel</h2>
-                <div className="text-sm text-gray-600">
+                <h2 className="text-lg font-semibold">Secondary View</h2>
+                <p className="text-sm text-gray-500 italic">
+                  Use this view to explore different branches while keeping your Primary View as reference.
+                </p>
+                <div className="text-sm text-gray-600 mt-2">
                   {getSelectedNodesForPanel('right').length} items selected
                 </div>
               </div>
@@ -182,14 +199,16 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
         </div>
       ) : (
         <div className="flex-1">
-          <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Relationship View</h2>
-            <button 
-              onClick={() => setShowRadial(false)}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              ← Back to Selection
-            </button>
+          <div className="p-4 border-b border-[#005035]/20 bg-[#005035]/5">
+            <div>
+              <h1 className="text-3xl font-bold text-[#005035] mb-2">
+                Academic Compass - Relationship Mode
+              </h1>
+              <p className="text-sm text-gray-500 italic">
+                Click and drag on the canvas below to pan the view to your selected entities. 
+                If nothing appears, try selecting "Dr. Sarah Smith" and "AI and Robotics" in Browse Mode.
+              </p>
+            </div>
           </div>
           <RadialView selectedNodes={selectedNodes} />
         </div>

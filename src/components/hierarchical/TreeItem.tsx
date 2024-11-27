@@ -20,13 +20,13 @@ interface TreeItemProps {
 const getNodeTypeStyles = (type: NodeType) => {
   switch (type) {
     case NodeType.COLLEGE:
-      return "bg-blue-50 hover:bg-blue-100 border-blue-100";
+      return "bg-[#005035]/10 hover:bg-[#005035]/20 border-[#005035]/20";
     case NodeType.DEPARTMENT:
-      return "bg-green-50 hover:bg-green-100 border-green-100";
+      return "bg-[#005035]/20 hover:bg-[#005035]/30 border-[#005035]/30";
     case NodeType.PROGRAM:
-      return "bg-purple-50 hover:bg-purple-100 border-purple-100";
+      return "bg-[#B3A369]/10 hover:bg-[#B3A369]/20 border-[#B3A369]/20";
     case NodeType.COURSE:
-      return "bg-orange-50 hover:bg-orange-100 border-orange-100";
+      return "bg-[#B3A369]/20 hover:bg-[#B3A369]/30 border-[#B3A369]/30";
     default:
       return "bg-gray-50 hover:bg-gray-100 border-gray-100";
   }
