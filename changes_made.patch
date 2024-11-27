@@ -1,0 +1,346 @@
+commit 70d2f8a50c4969f977e19f358f8abbf1494c2831
+Author: Dhruv Dhamani <dhruv.dhamani@gmail.com>
+Date:   Tue Nov 26 22:59:01 2024 -0500
+
+    high fidelty prototype
+
+diff --git a/.gitignore b/.gitignore
+index 5d70b69..e0a9a56 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,4 +1,5 @@
+ # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
++hcd-final-project/
+ 
+ # dependencies
+ /node_modules
+diff --git a/src/app/globals.css b/src/app/globals.css
+index bf1241d..01e487c 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -4,13 +4,13 @@
+ 
+ :root {
+   --background: #ffffff;
+-  --foreground: #171717;
++  --foreground: #005035;
+ }
+ 
+ @media (prefers-color-scheme: dark) {
+   :root {
+-    --background: #0a0a0a;
+-    --foreground: #ededed;
++    --background: #002820;
++    --foreground: #B3A369;
+   }
+ }
+ 
+@@ -30,13 +30,13 @@ body {
+ 
+ @keyframes searchBarPulse {
+   0% {
+-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
++    box-shadow: 0 0 0 0 rgba(0, 80, 53, 0.4);
+   }
+   70% {
+-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
++    box-shadow: 0 0 0 10px rgba(0, 80, 53, 0);
+   }
+   100% {
+-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
++    box-shadow: 0 0 0 0 rgba(0, 80, 53, 0);
+   }
+ }
+ 
+diff --git a/src/components/hierarchical/HierarchicalView.tsx b/src/components/hierarchical/HierarchicalView.tsx
+index 125416e..0cb9cc2 100644
+--- a/src/components/hierarchical/HierarchicalView.tsx
++++ b/src/components/hierarchical/HierarchicalView.tsx
+@@ -136,20 +136,34 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
+         onRemoveSelection={handleRemoveSelection}
+         onFilterChange={setActiveFilters}
+         onExploreClick={() => setShowRadial(true)}
++        onBackClick={() => setShowRadial(false)}
++        showExploreButton={!showRadial}
+       />
+       {!showRadial ? (
+         <div className="flex-1 flex flex-col">
+-          <div className="p-4 border-b border-gray-200">
++          <div className="p-4 border-b border-[#005035]/20 bg-[#005035]/5">
++            <h1 className="text-3xl font-bold text-[#005035] mb-2">
++              Academic Compass - Browse Mode
++            </h1>
++            <p className="text-sm text-gray-500 italic mb-4">
++              Browse and select courses, faculty, or programs that interest you. The two panels below act as separate views 
++              into the same data, like having two monitors. Once you've made your selections, click "Explore Relationships" 
++              to discover how they're connected.
++            </p>
+             <SearchBar 
+               data={mockHierarchicalData} 
+               onSelect={handleSearchSelect}
++              placeholder="Search for courses, faculty, or programs..."
+             />
+           </div>
+           <div className="flex-1 flex">
+             <div className="flex-1 border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+               <div className="p-4 border-b border-gray-200 bg-gray-50">
+-                <h2 className="text-lg font-semibold">Left Panel</h2>
+-                <div className="text-sm text-gray-600">
++                <h2 className="text-lg font-semibold">Primary View</h2>
++                <p className="text-sm text-gray-500 italic">
++                  Both views show the same academic structure. Select items here to compare with the Secondary View.
++                </p>
++                <div className="text-sm text-gray-600 mt-2">
+                   {getSelectedNodesForPanel('left').length} items selected
+                 </div>
+               </div>
+@@ -164,8 +178,11 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
+             </div>
+             <div className="flex-1 min-h-[calc(100vh-4rem)]">
+               <div className="p-4 border-b border-gray-200 bg-gray-50">
+-                <h2 className="text-lg font-semibold">Right Panel</h2>
+-                <div className="text-sm text-gray-600">
++                <h2 className="text-lg font-semibold">Secondary View</h2>
++                <p className="text-sm text-gray-500 italic">
++                  Use this view to explore different branches while keeping your Primary View as reference.
++                </p>
++                <div className="text-sm text-gray-600 mt-2">
+                   {getSelectedNodesForPanel('right').length} items selected
+                 </div>
+               </div>
+@@ -182,14 +199,16 @@ const HierarchicalView: React.FC<HierarchicalViewProps> = ({ onSelectionChange }
+         </div>
+       ) : (
+         <div className="flex-1">
+-          <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+-            <h2 className="text-lg font-semibold">Relationship View</h2>
+-            <button 
+-              onClick={() => setShowRadial(false)}
+-              className="text-sm text-gray-600 hover:text-gray-900"
+-            >
+-              ← Back to Selection
+-            </button>
++          <div className="p-4 border-b border-[#005035]/20 bg-[#005035]/5">
++            <div>
++              <h1 className="text-3xl font-bold text-[#005035] mb-2">
++                Academic Compass - Relationship Mode
++              </h1>
++              <p className="text-sm text-gray-500 italic">
++                Click and drag on the canvas below to pan the view to your selected entities. 
++                If nothing appears, try selecting "Dr. Sarah Smith" and "AI and Robotics" in Browse Mode.
++              </p>
++            </div>
+           </div>
+           <RadialView selectedNodes={selectedNodes} />
+         </div>
+diff --git a/src/components/hierarchical/SearchBar.tsx b/src/components/hierarchical/SearchBar.tsx
+index 6f1d554..d0f1e28 100644
+--- a/src/components/hierarchical/SearchBar.tsx
++++ b/src/components/hierarchical/SearchBar.tsx
+@@ -5,6 +5,7 @@ import { TreeNode } from "@/types/tree";
+ interface SearchBarProps {
+   data: TreeNode[];
+   onSelect: (node: TreeNode) => void;
++  placeholder?: string;
+ }
+ 
+ interface FuseResult {
+@@ -24,7 +25,11 @@ const flattenNodes = (nodes: TreeNode[]): TreeNode[] => {
+   }, []);
+ };
+ 
+-export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
++export const SearchBar: React.FC<SearchBarProps> = ({ 
++  data, 
++  onSelect,
++  placeholder = "Search for courses, faculty, or programs..." 
++}) => {
+   const [query, setQuery] = useState("");
+   const [results, setResults] = useState<TreeNode[]>([]);
+   const [isOpen, setIsOpen] = useState(false);
+@@ -87,7 +92,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
+           type="text"
+           value={query}
+           onChange={(e) => handleSearch(e.target.value)}
+-          placeholder="Search nodes..."
++          placeholder={placeholder}
+           className="w-full px-4 py-3 pl-10 text-lg border-2 border-blue-500 rounded-lg 
+           shadow-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300
+           bg-white dark:bg-gray-800 dark:border-blue-400 search-bar-animation"
+diff --git a/src/components/hierarchical/SidePanel.tsx b/src/components/hierarchical/SidePanel.tsx
+index daf6bbd..20ca3eb 100644
+--- a/src/components/hierarchical/SidePanel.tsx
++++ b/src/components/hierarchical/SidePanel.tsx
+@@ -11,6 +11,8 @@ interface SidePanelProps {
+   onRemoveSelection: (nodeId: string, panel: "left" | "right") => void;
+   onFilterChange: (filters: NodeType[]) => void;
+   onExploreClick: () => void;
++  onBackClick: () => void;
++  showExploreButton: boolean;
+ }
+ 
+ // @ts-expect-error - Duplicate function from TreeItem component, but needed for label display
+@@ -32,15 +34,41 @@ export const SidePanel: React.FC<SidePanelProps> = ({
+   onRemoveSelection,
+   onFilterChange,
+   onExploreClick,
++  onBackClick,
++  showExploreButton,
+ }) => {
+   return (
+-    <div className="w-80 border-r border-gray-200 bg-gray-50 p-4">
+-      <h2 className="text-xl font-semibold mb-4">Configuration</h2>
++    <div className="w-80 border-r border-[#005035]/20 bg-[#005035]/5 p-4">
++      <h2 className="text-xl font-semibold mb-2">Configuration</h2>
++      <p className="text-sm text-gray-500 italic mb-4">
++        Use filters to focus on specific types of academic entities. This helps narrow down your search across both views.
++      </p>
+ 
+       <FilterSection onFilterChange={onFilterChange} />
+ 
+-      <div className="mt-6">
+-        <h3 className="text-lg font-medium mb-3">Selected Items</h3>
++      {!showExploreButton && (
++        <button
++          onClick={onBackClick}
++          className="w-full my-4 bg-[#005035] text-white py-2 px-4 rounded-md hover:bg-[#005035]/90"
++        >
++          ← Back to Browse Mode
++        </button>
++      )}
++
++      {showExploreButton && Object.keys(selectedNodes).length > 0 && (
++        <button
++          onClick={onExploreClick}
++          className="w-full my-4 bg-[#005035] text-white py-2 px-4 rounded-md hover:bg-[#005035]/90"
++        >
++          Explore Relationships
++        </button>
++      )}
++
++      <div className="mt-2">
++        <h3 className="text-lg font-medium mb-2">Selected Items</h3>
++        <p className="text-sm text-gray-500 italic mb-3">
++          Items you select from either view will appear here. Select multiple items to discover their relationships in Relationship Mode.
++        </p>
+         <div className="space-y-2">
+           {Object.entries(selectedNodes).map(([key, node]) => (
+             <div
+@@ -63,15 +91,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({
+           ))}
+         </div>
+       </div>
+-
+-      {Object.keys(selectedNodes).length > 0 && (
+-        <button
+-          onClick={onExploreClick}
+-          className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+-        >
+-          Explore Relationships
+-        </button>
+-      )}
+     </div>
+   );
+ };
+diff --git a/src/components/hierarchical/TreeItem.tsx b/src/components/hierarchical/TreeItem.tsx
+index c431f9b..4ee550d 100644
+--- a/src/components/hierarchical/TreeItem.tsx
++++ b/src/components/hierarchical/TreeItem.tsx
+@@ -20,13 +20,13 @@ interface TreeItemProps {
+ const getNodeTypeStyles = (type: NodeType) => {
+   switch (type) {
+     case NodeType.COLLEGE:
+-      return "bg-blue-50 hover:bg-blue-100 border-blue-100";
++      return "bg-[#005035]/10 hover:bg-[#005035]/20 border-[#005035]/20";
+     case NodeType.DEPARTMENT:
+-      return "bg-green-50 hover:bg-green-100 border-green-100";
++      return "bg-[#005035]/20 hover:bg-[#005035]/30 border-[#005035]/30";
+     case NodeType.PROGRAM:
+-      return "bg-purple-50 hover:bg-purple-100 border-purple-100";
++      return "bg-[#B3A369]/10 hover:bg-[#B3A369]/20 border-[#B3A369]/20";
+     case NodeType.COURSE:
+-      return "bg-orange-50 hover:bg-orange-100 border-orange-100";
++      return "bg-[#B3A369]/20 hover:bg-[#B3A369]/30 border-[#B3A369]/30";
+     default:
+       return "bg-gray-50 hover:bg-gray-100 border-gray-100";
+   }
+diff --git a/src/components/radial/utils.ts b/src/components/radial/utils.ts
+index c68eeb6..e8df93d 100644
+--- a/src/components/radial/utils.ts
++++ b/src/components/radial/utils.ts
+@@ -79,31 +79,31 @@ export const getRelationshipStyle = (type: RelationshipType) => {
+       return {
+         strokeWidth: 2,
+         strokeDasharray: "none",
+-        color: "#4B5563", // gray-600
++        color: "#005035", // green
+       };
+     case RelationshipType.PREREQUISITE:
+       return {
+         strokeWidth: 2,
+         strokeDasharray: "5,5",
+-        color: "#DC2626", // red-600
++        color: "#B3A369", // gold
+       };
+     case RelationshipType.COLLABORATES:
+       return {
+         strokeWidth: 2,
+         strokeDasharray: "2,2",
+-        color: "#2563EB", // blue-600
++        color: "#007050", // lighter green
+       };
+     case RelationshipType.RESEARCHES:
+       return {
+         strokeWidth: 2,
+         strokeDasharray: "none",
+-        color: "#7C3AED", // purple-600
++        color: "#A39359", // darker gold
+       };
+     default:
+       return {
+         strokeWidth: 1,
+         strokeDasharray: "none",
+-        color: "#9CA3AF", // gray-400
++        color: "#9CA3AF",
+       };
+   }
+ };
+@@ -150,4 +150,37 @@ export const calculateCurvedPath = (
+ 
+   // Create curved path
+   return `M ${sourceX} ${sourceY} A ${dr} ${dr} 0 0 1 ${targetX} ${targetY}`;
++};
++
++// Update getNodeColor function
++const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
++  if (node.isRelated) {
++    // Use lighter shades for related nodes
++    switch (node.type) {
++      case NodeType.COLLEGE:
++        return "#007050"; // lighter green
++      case NodeType.DEPARTMENT:
++        return "#008060"; // light green
++      case NodeType.PROGRAM:
++        return "#C4B88E"; // lighter gold
++      case NodeType.COURSE:
++        return "#B3A369"; // gold
++      default:
++        return "#f3f4f6";
++    }
++  }
++
++  // Original colors for selected nodes
++  switch (node.type) {
++    case NodeType.COLLEGE:
++      return "#005035"; // green
++    case NodeType.DEPARTMENT:
++      return "#006045"; // slightly lighter green
++    case NodeType.PROGRAM:
++      return "#A39359"; // darker gold
++    case NodeType.COURSE:
++      return "#B3A369"; // gold
++    default:
++      return "#e5e7eb";
++  }
+ };
+\ No newline at end of file

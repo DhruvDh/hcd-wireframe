@@ -1,5 +1,5 @@
-import { TreeNode } from "@/types/tree";
-import { RelationshipType } from "@/lib/mock-data";
+import { TreeNode, NodeType } from "@/types/tree";
+import { RelationshipType } from "@/types/relationships";
 
 export interface NodePosition {
   x: number;
@@ -152,8 +152,8 @@ export const calculateCurvedPath = (
   return `M ${sourceX} ${sourceY} A ${dr} ${dr} 0 0 1 ${targetX} ${targetY}`;
 };
 
-// Update getNodeColor function
-const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
+// Update getNodeColor function with proper imports
+export const getNodeColor = (node: PositionedNode & { isRelated?: boolean }): string => {
   if (node.isRelated) {
     // Use lighter shades for related nodes
     switch (node.type) {
